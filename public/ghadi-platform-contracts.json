@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "1.0.0-proposal",
+  "documentPurpose": "تنسيق عقود Ghadi قبل تنفيذ إعادة تصميم الواجهة أو تفعيل منفذات جديدة.",
+  "executionPolicy": {
+    "mode": "contract-first",
+    "clientMayExecuteExternalEffects": false,
+    "directModelSecretsInClient": false,
+    "externalEffectRequiresEvidence": true,
+    "automaticDeployment": false
+  },
+  "clientBundle": {
+    "sourceFiles": ["dashboard.html", "dashboard.css", "dashboard.js", "ghadi-platform-contracts.json"],
+    "targetPaths": {
+      "dashboard.html": "public/dashboard.html",
+      "dashboard.css": "public/assets/dashboard.css",
+      "dashboard.js": "public/assets/dashboard.js",
+      "ghadi-platform-contracts.json": "public/ghadi-platform-contracts.json"
+    },
+    "installation": "manual-copy-through-termux-ghadi-rollout.sh",
+    "overwriteRequiresBackup": true
+  },
+  "project": {
+    "id": "g-elite-g-smart-platform",
+    "hostingOrigin": "https://g-elite-g-smart-platform.web.app",
+    "region": "us-central1",
+    "firestoreDatabaseId": "g-elite-g",
+    "api": {
+      "relativeBase": "/api",
+      "directFunctionBase": "https://ghadiapi-noy6fbznva-uc.a.run.app",
+      "timeoutMs": 18000
+    },
+    "ai": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "executionLocation": "server-only",
+      "enableFlag": "GHADI_ENABLE_GEMINI"
+    }
+  },
+  "experience": {
+    "layout": "single-intent-surface",
+    "alwaysVisible": [
+      "brand-status",
+      "intent-composer",
+      "attachment-control",
+      "send-control",
+      "result-surface",
+      "details-control"
+    ],
+    "onDemandInspectorSections": [
+      "project",
+      "files",
+      "plan",
+      "execution-evidence",
+      "approvals",
+      "exports"
+    ],
+    "primaryResultKinds": [
+      "preview",
+      "file-diff",
+      "media-asset",
+      "execution-summary"
+    ],
+    "removeFromPrimarySurface": [
+      "tool-chip-strip",
+      "static-tool-catalog",
+      "default-output-tab",
+      "default-test-button",
+      "persistent-long-chat-log"
+    ]
+  },
+  "dataModels": {
+    "project": {
+      "path": "projects/{projectId}",
+      "required": ["ownerId", "title", "defaultBranch", "createdAt"],
+      "access": "project-members-only"
+    },
+    "file": {
+      "path": "projects/{projectId}/files/{fileId}",
+      "required": ["path", "kind", "version", "storageRef", "checksum"],
+      "states": ["local", "uploaded", "processing", "ready", "failed"]
+    },
+    "run": {
+      "path": "projects/{projectId}/runs/{runId}",
+      "required": ["actorId", "intent", "status", "plan", "startedAt"],
+      "states": ["draft", "planned", "running", "awaiting_approval", "blocked", "completed", "failed", "cancelled"]
+    },
+    "event": {
+      "path": "projects/{projectId}/runs/{runId}/events/{eventId}",
+      "required": ["stepId", "type", "status", "timestamp"],
+      "evidenceRefRequiredForSuccess": true
+    },
+    "approval": {
+      "path": "projects/{projectId}/approvals/{approvalId}",
+      "required": ["capabilityId", "payloadHash", "status", "expiresAt"],
+      "states": ["pending", "approved", "rejected", "expired", "consumed"]
+    },
+    "release": {
+      "path": "projects/{projectId}/releases/{releaseId}",
+      "required": ["commitRef", "tests", "state"],
+      "states": ["draft", "preview_ready", "approved", "deployed", "rolled_back"]
+    }
+  },
+  "httpContracts": [
+    {
+      "id": "health.read",
+      "method": "GET",
+      "path": "/api/health",
+      "risk": "read",
+      "visibility": "status-only",
+      "enabled": true
+    },
+    {
+      "id": "attachment.create",
+      "method": "POST",
+      "path": "/api/attachments",
+      "risk": "project-write",
+      "visibility": "attachment-control",
+      "enabled": true,
+      "constraints": {"maxBytes": 26214400, "acceptedKinds": ["image", "pdf"]}
+    },
+    {
+      "id": "run.create",
+      "method": "POST",
+      "path": "/api/submit",
+      "risk": "project-write",
+      "visibility": "send-control",
+      "enabled": true,
+      "migration": "يتحول من طلب نصي عام إلى إنشاء run مرتبط بـprojectId وactorId"
+    },
+    {
+      "id": "run.events.read",
+      "method": "GET",
+      "path": "/api/runs/{runId}/events",
+      "risk": "read",
+      "visibility": "inspector-only",
+      "enabled": false,
+      "reason": "يضاف عند تطبيق سجل أحداث مستمر"
+    },
+    {
+      "id": "run.output.read",
+      "method": "GET",
+      "path": "/api/runs/{runId}/output",
+      "risk": "read",
+      "visibility": "result-surface",
+      "enabled": false
+    },
+    {
+      "id": "approval.confirm",
+      "method": "POST",
+      "path": "/api/approvals/{approvalId}/confirm",
+      "risk": "external-effect",
+      "visibility": "approval-card-only",
+      "enabled": false,
+      "requires": ["authenticated-user", "payload-hash-match", "unexpired-approval"]
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "project.plan",
+      "risk": "read",
+      "executor": "orchestrator",
+      "visibility": "implicit-in-run",
+      "enabled": true,
+      "approval": "none"
+    },
+    {
+      "id": "file.create_or_edit",
+      "risk": "project-write",
+      "executor": "workspace-adapter",
+      "visibility": "file-diff",
+      "enabled": false,
+      "approval": "project-policy"
+    },
+    {
+      "id": "app.build_and_preview",
+      "risk": "isolated-execution",
+      "executor": "sandbox-adapter",
+      "visibility": "preview",
+      "enabled": false,
+      "approval": "project-policy",
+      "requirements": ["isolated-workspace", "resource-limits", "artifact-evidence"]
+    },
+    {
+      "id": "web.search",
+      "risk": "read",
+      "executor": "search-adapter",
+      "visibility": "inspector-evidence",
+      "enabled": false,
+      "approval": "none"
+    },
+    {
+      "id": "media.image",
+      "risk": "project-write",
+      "executor": "media-adapter",
+      "visibility": "media-asset",
+      "enabled": false,
+      "approval": "project-policy"
+    },
+    {
+      "id": "media.video",
+      "risk": "project-write",
+      "executor": "media-adapter",
+      "visibility": "media-asset",
+      "enabled": false,
+      "approval": "project-policy"
+    },
+    {
+      "id": "email.send",
+      "risk": "external-effect",
+      "executor": "mail-adapter",
+      "visibility": "approval-card-only",
+      "enabled": false,
+      "approval": "explicit-payload-bound"
+    },
+    {
+      "id": "release.deploy",
+      "risk": "external-effect",
+      "executor": "deployment-adapter",
+      "visibility": "approval-card-only",
+      "enabled": false,
+      "approval": "explicit-payload-bound",
+      "requirements": ["tests-passed", "preview-ready", "release-approval"]
+    },
+    {
+      "id": "payment.transfer",
+      "risk": "financial-effect",
+      "executor": "payment-adapter",
+      "visibility": "approval-card-only",
+      "enabled": false,
+      "approval": "multi-step-payload-bound",
+      "requirements": ["verified-identity", "beneficiary-review", "amount-review", "immutable-audit-record"]
+    }
+  ],
+  "policy": {
+    "never": [
+      "expose-secrets-in-client",
+      "execute-unbounded-shell-command",
+      "show-success-before-evidence",
+      "apply-forced-dependency-fixes-without-review",
+      "perform-external-effect-from-natural-language-alone"
+    ],
+    "approvalRequiredFor": ["external-effect", "financial-effect"],
+    "evidenceRequiredFor": ["completed", "deployed", "sent", "paid"],
+    "auditFields": ["actorId", "projectId", "runId", "capabilityId", "inputHash", "outputRef", "timestamp"]
+  },
+  "rollout": [
+    {"phase": "foundation", "scope": ["node-runtime-alignment", "project-run-event-approval-models"], "releaseGate": "persistent-run-readback"},
+    {"phase": "minimal-ui", "scope": ["single-intent-surface", "inspector", "project-context"], "releaseGate": "no-static-tool-catalog"},
+    {"phase": "workspace", "scope": ["file-diffs", "isolated-build", "preview"], "releaseGate": "build-and-preview-evidence"},
+    {"phase": "integrations", "scope": ["search", "media", "release-workflow"], "releaseGate": "adapter-policy-audit"}
+  ]
+}

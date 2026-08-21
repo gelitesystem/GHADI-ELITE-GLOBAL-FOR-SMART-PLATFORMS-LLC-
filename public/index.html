@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>G-ELITE-G — GHADI ELITE GLOBAL FOR SMART PLATFORMS</title>
+  <meta name="description" content="GHADI ELITE GLOBAL for Smart Platforms LLC - Sovereign Execution Hub specializing in AI, Semiconductor Energy Efficiency, TESI Index, GOT Token, and Global Tech-Sovereignty.">
+  <link rel="icon" type="image/png" sizes="64x64" href="image/g_elite_g-logo_final.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <style>
+    /* ============================================================
+       G-ELITE-G | SOVEREIGN EXECUTION HUB
+       Global Standard Executive Level — Ultra High-Resolution Master Mode
+       Primary Brand Color: #004aad — Sovereign Electric Blue
+       ============================================================ */
+
+    /* ---------- CSS CUSTOM PROPERTIES (OPTIMIZED FOR VIBRANCY) ---------- */
+    :root {
+      --primary-blue: #004aad;
+      --primary-blue-deep: #00337a;
+      --primary-blue-dark: #001f4d;
+      --primary-blue-light: #e8f1ff;
+      --primary-blue-glow: rgba(0, 74, 173, 0.5);
+      --primary-blue-subtle: rgba(0, 74, 173, 0.08);
+
+      --accent-gold: #c5a059; /* محتفظ به للاستخدامات الأخرى فقط */
+      --accent-gold-light: rgba(197, 160, 89, 0.15);
+
+      --surface-white: #ffffff;
+      --surface-off-white: #f7f9fc;
+      --surface-light-gray: #eef1f5;
+      --surface-dark-elevated: #0f1a24;
+      --surface-dark-card: rgba(10, 25, 38, 0.94);
+
+      --text-primary: #0a0a0a;
+      --text-body: #222222;
+      --text-muted: #4a4a4a;
+      --text-on-dark: #eef2f8;
+      --text-on-dark-muted: #b0bec5;
+
+      --font-stack: 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
+      --font-mono: 'SF Mono', 'Consolas', 'Monaco', monospace;
+
+      --header-height-desktop: 100px;
+      --header-height-tablet: 90px;
+      --logo-height-desktop: 130px;
+      --logo-height-tablet: 130px;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-pill: 40px;
+
+      --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.03);
+      --shadow-card-hover: 0 18px 40px rgba(0, 0, 0, 0.08);
+      --shadow-elevated: 0 12px 35px rgba(0, 0, 0, 0.1);
+      --shadow-button: 0 8px 20px rgba(0, 74, 173, 0.3);
+      --shadow-button-hover: 0 12px 28px rgba(0, 74, 173, 0.45);
+
+      --transition-smooth: 0.3s cubic-bezier(0.22, 0.87, 0.36, 1.1);
+      --transition-ease: 0.25s ease;
+    }
+
+    /* ---------- GLOBAL RESET & ULTRA HD BASE ---------- */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      image-rendering: auto;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      color: var(--text-body);
+      line-height: 1.7;
+      background-color: var(--surface-white);
+      direction: ltr;
+      overflow-x: hidden;
+      font-size: 16px;
+      /* Ultra HD Color Boost */
+      filter: contrast(1.02) saturate(1.12);
+      -webkit-font-smoothing: subpixel-antialiased;
+      backface-visibility: hidden;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---------- TYPOGRAPHY ---------- */
+    h1, h2, h3, h4 {
+      color: var(--primary-blue);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      color: var(--primary-blue-deep);
+    }
+
+    h2::after {
+      content: '';
+      display: block;
+      width: 70px;
+      height: 4px;
+      background: var(--primary-blue);
+      margin: 16px auto 0;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    section:hover h2::after {
+      width: 100px;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: var(--primary-blue);
+    }
+
+    h4 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--primary-blue);
+    }
+
+    p { margin-bottom: 16px; }
+
+    /* ---------- BUTTONS ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 30px;
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      transition: var(--transition-smooth);
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      border-radius: inherit;
+    }
+
+    .btn:hover::before { opacity: 1; }
+
+    .primary-btn {
+      background-color: var(--primary-blue);
+      color: #ffffff;
+      border: 2px solid var(--primary-blue);
+      box-shadow: var(--shadow-button);
+    }
+
+    .primary-btn:hover {
+      background-color: var(--primary-blue-deep);
+      border-color: var(--primary-blue-deep);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-button-hover);
+    }
+
+    .secondary-btn {
+      color: var(--primary-blue);
+      border: 2px solid var(--primary-blue);
+      background: transparent;
+    }
+
+    .secondary-btn:hover {
+      background-color: var(--primary-blue);
+      color: #ffffff;
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-button);
+    }
+
+    /* ---------- HEADER & NAVIGATION ---------- */
+    .header {
+      background-color: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+      min-height: var(--header-height-desktop);
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 74, 173, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      flex-wrap: nowrap;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo img {
+      height: var(--logo-height-desktop);
+      width: auto;
+      object-fit: contain;
+      transition: transform 0.35s ease;
+      filter: drop-shadow(0 2px 4px rgba(0, 74, 173, 0.15));
+    }
+
+    .logo img:hover {
+      transform: scale(1.04);
+      filter: drop-shadow(0 6px 12px rgba(0, 74, 173, 0.3));
+    }
+
+    .company-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-blue);
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav a {
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.4px;
+      transition: var(--transition-ease);
+      position: relative;
+      padding: 4px 0;
+    }
+
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary-blue);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .nav a:hover::after { width: 100%; }
+    .nav a:hover { color: var(--primary-blue-deep); }
+
+    /* ---------- HEADER BUTTONS (NEW) ---------- */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      min-width: 130px; 
+      border-radius: var(--radius-pill); /* استخدام المتغير الخاص بك ليكون دائرياً */
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      text-decoration: none;
+      background: var(--primary-blue); /* لون الزر الأزرق */
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      box-shadow: 0 4px 12px var(--primary-blue-glow);
+    }
+
+    .btn-action:hover {
+      background: var(--primary-blue-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--primary-blue-glow);
+    }
+
+    /* تنسيق خاص لزر الداشبورد (اللون الذهبي) */
+    .btn-action.btn-gold {
+      background: var(--accent-gold); /* لونك الذهبي */
+      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+    }
+
+    .btn-action.btn-gold:hover {
+      background: #b59048;
+      box-shadow: 0 6px 15px rgba(197, 160, 89, 0.6);
+    }
+
+    /* ضبط الأزرار داخل قائمة الموبايل */
+    .mobile-nav .btn-action {
+      width: calc(100% - 56px); /* لضبط العرض داخل القائمة */
+      margin: 10px 28px;
+      justify-content: center;
+    }
+
+
+    .hamburger-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 22px;
+      z-index: 2100;
+    }
+    .hamburger-toggle span {
+      height: 3px;
+      width: 100%;
+      background-color: var(--primary-blue);
+      border-radius: 3px;
+      transition: 0.3s ease;
+    }
+    .hamburger-toggle.active span:nth-child(1) { transform: translateY(9.5px) rotate(45deg); }
+    .hamburger-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger-toggle.active span:nth-child(3) { transform: translateY(-9.5px) rotate(-45deg); }
+
+    .mobile-nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      z-index: 1050;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+    .mobile-nav.is-open { display: flex !important; animation: slideDown 0.35s ease-out; }
+    .mobile-nav a, .mobile-nav button {
+      padding: 16px 28px;
+      border-bottom: 1px solid #f0f4f8;
+      text-align: center;
+      width: 100%;
+      text-decoration: none;
+      color: var(--primary-blue);
+      font-weight: 600;
+      font-size: 0.95rem;
+      background: transparent;
+    }
+
+    /* ---------- HERO SECTION (ULTRA CLEAR VIDEO) ---------- */
+   .hero-section {
+      position: relative;
+      height: 85vh;
+      min-height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      overflow: hidden;
+    }
+    .hero-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      /* تعزيز الوضوح */
+      filter: brightness(1.05) contrast(1.05) saturate(1.1);
+      image-rendering: auto;
+    }
+    /* لا يوجد أي طبقة داكنة (overlay) للحفاظ على سطوع الفيديو */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      background: transparent; /* خلفية شفافة تماماً */
+      padding: 30px;
+      border-radius: 0;
+      max-width: 900px;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      animation: fadeInUp 1s ease-out;
+      border: none;
+      box-shadow: none;
+    }
+    .headline {
+      font-size: clamp(2.5rem, 5.5vw, 4rem);
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      /* ظل نص قوي لضمان الوضوح على أي فيديو */
+      text-shadow: 0 0 25px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.9);
+    }
+    .tagline {
+      font-size: 1.3rem;
+      margin: 20px 0 15px;
+      color: #ffffff;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      text-shadow: 0 0 18px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.85);
+    }
+    .hero-content .primary-btn {
+      margin-top: 15px;
+      font-size: 1rem;
+      padding: 16px 36px;
+      box-shadow: 0 8px 25px rgba(0, 74, 173, 0.6);
+      border: 2px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ---------- ABOUT SECTION ---------- */
+    .about-section {
+      background-color: var(--surface-off-white);
+      position: relative;
+    }
+    .about-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, transparent 0%, var(--primary-blue) 30%, var(--primary-blue-deep) 70%, transparent 100%);
+      opacity: 0.8;
+    }
+    .about-grid { display: flex; gap: 50px; align-items: center; }
+    .about-image-box { flex: 1; }
+    .about-text { flex: 2; }
+
+    .about-image-box video {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      transition: transform 0.5s ease;
+      filter: brightness(1.02) contrast(1.02);
+    }
+    .about-image-box video:hover { transform: scale(1.02); }
+
+    .toggle-brief-btn {
+      background: transparent;
+      border: 2px solid var(--primary-blue);
+      color: var(--primary-blue);
+      padding: 12px 26px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      margin: 18px 0;
+      transition: var(--transition-smooth);
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+    .toggle-brief-btn:hover {
+      background: var(--primary-blue);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .foundational-brief {
+      margin-top: 1.2rem;
+      padding: 1.5rem;
+      background: rgba(0, 74, 173, 0.04);
+      border-radius: var(--radius-lg);
+      border-left: 4px solid var(--primary-blue);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #2a2a2a;
+      animation: fadeInUp 0.5s ease-out;
+    }
+    .foundational-brief strong { color: var(--primary-blue); }
+
+    /* ---------- SERVICES GRID (VIDEOS) ---------- */
+    .services-section { background-color: var(--surface-white); }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 2rem;
+    }
+    .service-card {
+      background: var(--surface-white);
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(0,0,0,0.04);
+      transition: var(--transition-smooth);
+      box-shadow: var(--shadow-card);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-card-hover);
+      border-color: var(--primary-blue);
+    }
+    .service-icon-video {
+      width: 100%;
+      height: 230px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      transition: transform 0.4s ease;
+      filter: brightness(1.04) contrast(1.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .service-card:hover .service-icon-video { transform: scale(1.03); }
+    .service-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+    .service-card p { font-size: 0.88rem; color: var(--text-muted); flex: 1; }
+
+    /* ---------- LEGAL ACTIVITIES GRID (موحد باللون الأزرق #004aad) ---------- */
+    #activitiesFullList { margin-top: 1.5rem; }
+    .legal-activities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 1.8rem;
+      margin-top: 0.5rem;
+    }
+    .legal-category {
+      background: var(--surface-dark-card);
+      border-left: 6px solid var(--primary-blue); /* كل الأقسام زرقاء */
+      padding: 1.6rem;
+      border-radius: var(--radius-lg);
+      transition: var(--transition-smooth);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-on-dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .legal-category:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      border-left-color: var(--primary-blue);
+    }
+    .legal-category h4 {
+      color: var(--primary-blue); /* عناوين زرقاء */
+      margin-bottom: 1.2rem;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .legal-category ul { margin: 0; padding-left: 1.2rem; flex: 1; list-style-type: none; }
+    .legal-category ul li {
+      margin: 0.5rem 0;
+      line-height: 1.6;
+      font-size: 0.88rem;
+      position: relative;
+      padding-left: 18px;
+    }
+    .legal-category ul li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--primary-blue); /* علامات زرقاء */
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    /* بطاقة الهوية القانونية (القسم الأول) - أصبحت الآن باللون الأزرق مثل باقي الأقسام */
+    .legal-identity-card {
+      background: linear-gradient(145deg, #001a3a 0%, #00122a 100%);
+      border-left: 6px solid var(--primary-blue); /* تم التغيير من الذهبي إلى الأزرق */
+    }
+    .legal-identity-card h4 {
+      color: var(--primary-blue); /* تم التغيير من الذهبي إلى الأزرق */
+    }
+    .legal-identity-card ul li strong {
+      color: #ffffff; /* أبيض لقراءة أفضل */
+      font-weight: 600;
+    }
+    .legal-identity-card ul li::before {
+      color: var(--primary-blue); /* تم التغيير من الذهبي إلى الأزرق */
+    }
+
+    /* ---------- INVESTMENT PITCH ---------- */
+    .contact-section { background-color: var(--surface-light-gray); text-align: center; }
+    #investment-pitch.contact-section { background-color: var(--surface-off-white); }
+    #investment-pitch .about-text { text-align: left; padding-left: 0; }
+    #investment-pitch .about-text ul { margin-left: 1.8rem; margin-bottom: 1.5rem; }
+    #investment-pitch .about-text ul li { margin: 0.6rem 0; color: var(--text-body); }
+    #investment-pitch .about-text ul li strong { color: var(--primary-blue); }
+
+    /* ---------- CONTACT INFO CARDS ---------- */
+    .contact-info {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-top: 50px;
+    }
+    .info-card {
+      background: var(--surface-white);
+      padding: 35px 28px;
+      border-radius: var(--radius-lg);
+      flex: 1;
+      min-width: 250px;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition-smooth);
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    .info-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card-hover);
+      border-color: var(--primary-blue);
+    }
+    .info-card i { font-size: 2.2rem; color: var(--primary-blue); margin-bottom: 15px; }
+    .info-card h4 { margin-bottom: 10px; }
+    .info-card p { font-size: 0.95rem; }
+
+    /* ---------- WHATSAPP STICKY ---------- */
+    .whatsapp-sticky {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #25d366;
+      color: #ffffff;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      z-index: 3000;
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+      transition: 0.3s ease;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .whatsapp-sticky:hover { transform: scale(1.1); background: #1fbd55; }
+
+    /* ---------- FOOTER ---------- */
+    .footer {
+      background: #0b1219;
+      color: #cfd8e2;
+      padding: 50px 0;
+      text-align: center;
+      font-size: 0.92rem;
+      border-top: 4px solid var(--primary-blue);
+    }
+    .footer a { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+    .footer a:hover { color: #ffffff; text-decoration: underline; }
+    .footer strong { color: #ffffff; }
+
+    /* ---------- KEYFRAMES ---------- */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes subtlePulse {
+      0%, 100% { box-shadow: 0 4px 12px var(--primary-blue-glow); }
+      50% { box-shadow: 0 8px 28px var(--primary-blue-glow); }
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 1024px) {
+      :root { --header-height-desktop: 100px; --logo-height-desktop: 100px; }
+      .header .nav#desktop-nav { display: none !important; }
+      .hamburger-toggle { display: flex !important; }
+      .about-grid { flex-direction: column; }
+      .service-icon-video { height: 200px; }
+      .legal-activities-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .services-grid, .legal-activities-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 18px; }
+      section { padding: 60px 0; }
+      h2 { font-size: 1.9em; }
+      .headline { font-size: 2.2em; }
+      .hero-content { padding: 20px; }
+    }
+    @media (max-width: 480px) {
+      .headline { font-size: 1.8em; }
+      .company-name { font-size: 0.8rem; }
+    }
+    .short-name { display: none; }
+    @media (max-width: 768px) {
+      .full-name { display: none; }
+      .short-name { display: inline; }
+    }
+  </style>
+</head>
+<body>
+  <a href="https://wa.me/201033505000" class="whatsapp-sticky" target="_blank" aria-label="WhatsApp Contact" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+
+<header class="header" id="main-header">
+  <div class="container">
+    <!-- اللوجو فقط (بدون نصوص) ليصبح الهيدر مرتباً -->
+    <a href="index.html" class="logo" aria-label="GHADI Elite Global Home">
+      <img src="image/g_elite_g-logo_final.png" alt="G-ELITE-G Logo">
+    </a>
+    
+    <button class="hamburger-toggle" id="nav-toggle" aria-label="Toggle Navigation" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <!-- قائمة سطح المكتب -->
+    <nav class="nav" id="desktop-nav">
+      <a href="#about">About Us</a>
+      <a href="#services">Services</a>
+      <a href="#investment-pitch">Invest with Us</a>
+      <a href="#contact">Contact</a>
+      <!-- الأزرار الجديدة متناسقة الحجم -->
+      <button class="btn-action" id="platform-btn"><i class="fas fa-cube"></i> Platform</button>
+      <a href="/dashboard.html" class="btn-action btn-gold"><i class="fas fa-crown"></i> Dashboard</a>
+    </nav>
+  </div>
+
+  <!-- قائمة الموبايل -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="#about">About Us</a>
+    <a href="#services">Services</a>
+    <a href="#investment-pitch">Invest with Us</a>
+    <a href="#contact">Contact</a>
+    <!-- الأزرار الجديدة متناسقة الحجم -->
+    <button class="btn-action" id="platform-btn-mobile"><i class="fas fa-cube"></i> Platform</button>
+    <a href="/dashboard.html" class="btn-action btn-gold"><i class="fas fa-crown"></i> Dashboard</a>
+  </nav>
+</header>
+
+  <section id="hero" class="hero-section">
+    <video autoplay muted loop playsinline class="hero-video" poster="image/hero_poster.jpg">
+      <source src="image/hero_video.mp4" type="video/mp4">
+    </video>
+    <div class="hero-content">
+
+  <div style="display: inline-block; padding: 6px 18px; background: rgba(197, 160, 89, 0.15); border: 1px solid #c5a059; border-radius: 30px; color: #c5a059; font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 20px; text-transform: uppercase; backdrop-filter: blur(4px);">
+        GHADI ELITE GLOBAL FOR SMART PLATFORMS
+      </div>
+
+      <h1 class="headline">Engineering Intelligent Futures. Globally.</h1>
+      <p class="tagline">AI-powered platforms, data architecture, and cybersecurity excellence from the UAE.</p>
+      <a href="#services" class="btn primary-btn">Explore Our Capabilities</a>
+    </div>
+  </section>
+
+  <section id="about" class="about-section">
+    <div class="container">
+      <h2>About GHADI Elite Global</h2>
+      <div class="about-grid">
+        <div class="about-image-box">
+          <video autoplay loop playsinline controls class="service-icon-video" poster="image/about_us_poster.jpg">
+            <source src="image/about_us_video.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="about-text">
+          <p style="font-size:1.2rem; font-weight:500;">The silicon age has reached its turning point. We do not sell energy — we transform energy waste into digital efficiency, and silent data into hybrid physical-digital assets.</p>
+          <p><strong>GHADI ELITE GLOBAL FOR SMART PLATFORMS LLC</strong> is not just a technology company. It is a <strong>global execution hub</strong>, built on a robust legal framework and a diversified portfolio of licensed activities, creating an ideal environment for international partnerships and future technological breakthroughs. We deliver high‑quality, scalable solutions aligned with the highest global standards, empowering organizations across all sectors to achieve their digital transformation vision.</p>
+          <p>We are the architects behind <strong>TROVE PLATFORM</strong> — a sovereign AI‑driven ecosystem that redefines the relationship between matter, energy, and digital transformation. By bridging physics with digital economics, we unlock new forms of value and enable next‑generation intelligent systems.</p>
+          <button class="toggle-brief-btn" id="toggleFoundationalBrief" aria-expanded="false"><i class="fas fa-scroll"></i>  Read Foundational Brief</button>
+          <div id="foundationalBrief" style="display: none;">
+            <div class="foundational-brief">
+              <p><strong>Our Vision:</strong> To build a new generation of intelligent systems that redefine matter, energy, and digital transformation. We advance research in energy, nanomaterials, ultra‑stable semiconductor systems (Silicene), and oxidation/leakage protection technologies for electronic chip manufacturing. Our integrated impact sectors include: cybersecurity architecture, electronic chip and semiconductor programming, database engineering, specialized web hosting, strategic consulting, AI and innovation research, digital commerce, and e‑commerce solutions.</p>
+              <p><strong>The Global Semiconductor Crossroads:</strong> The semiconductor industry stands at the intersection of two simultaneous revolutions — technological and geopolitical. Technologically, Moore's Law slows, shifting innovation from transistor scaling to full‑system engineering: advanced packaging, chiplet interconnect, and specialized AI processors. Geopolitically, chips have become the new oil, fueling "chip nationalism" with hundreds of billions in government investments across the US, Europe, China, and the Gulf. Energy waste in modern computing (up to 40% of energy lost as heat) and the lack of a universal efficiency metric threaten the sustainability of the entire digital economy.</p>
+              <p><strong>Our Promise:</strong> High‑quality, scalable solutions built to the highest global standards, capable of supporting digital transformation visions, ultimately delivering knowledge and digital sovereignty. We do not compete with manufacturers — we provide the intelligent software infrastructure that makes them more efficient and profitable, addressing supply chain complexities and energy inefficiencies at their core.</p>
+            </div>
+          </div>
+          <a href="#investment-pitch" class="btn secondary-btn">Partner with Us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="services-section">
+    <div class="container">
+      <h2>Legal Identity & Licensed Commercial Activities</h2>
+      <div id="licensed-activities" style="margin-top: 0.5rem; margin-bottom: 2rem; text-align: center;">
+        <button class="btn primary-btn" id="toggleActivitiesBtn" aria-expanded="false"><i class="fas fa-list-ul"></i> Show Legal & Activities Register</button>
+        <div id="activitiesFullList" style="display: none; margin-top: 2rem;">
+          <div class="legal-activities-grid">
+            <div class="legal-category legal-identity-card">
+              <h4><i class="fas fa-building"></i> 1. Corporate Legal Identity</h4>
+              <ul>
+                <li><strong>Company Name:</strong> GHADI ELITE GLOBAL FOR SMART PLATFORMS LLC</li>
+                <li><strong>Legal Type:</strong> Limited Liability Company (LLC)</li>
+                <li><strong>License Number:</strong> 2538381.01</li>
+                <li><strong>TRN:</strong> 105074971000001</li>
+                <li><strong>Registered Address:</strong> Shams Business Center, Sharjah Media City Free Zone, Al Messaned, Sharjah, UAE</li>
+                <li><strong>Governing Laws:</strong> Sharjah Media City regulations, Sharjah Emirate laws, UAE Federal laws</li>
+                <li><strong>Competent Court:</strong> Sharjah Courts</li>
+                <li><strong>Owner & Managing Director (100%):</strong> Ahmed Hamdy Hassan Mohamed Ali (Egyptian)</li>
+                <li><strong>Phone/WhatsApp:</strong> +201033505000, +96181987432</li>
+                <li><strong>Emails:</strong> info@g-elite-g.com (Official), gelitesystem@gmail.com (Admin)</li>
+                <li><strong>Website:</strong> https://g-elite-g.com</li>
+              </ul>
+            </div>
+            <div class="legal-category">
+              <h4> 2. Digital Commerce & Software Engineering</h4>
+              <ul><li>Retail sale through purchase order execution houses or via internet</li><li>Retail sale of any product type via mail order</li><li>Retail sale of any product type via internet</li><li>Direct sale via television and radio</li><li>Content structure design and computer code writing for software systems, applications, databases, and websites</li><li>Custom software development</li><li>Design and production of social media programs</li><li>Database systems design</li><li>Cybersecurity architecture design</li><li>Information network sites design</li></ul>
+            </div>
+            <div class="legal-category">
+              <h4> 3. Advanced IT & Cybersecurity Solutions</h4>
+              <ul><li>Computer systems and programs design</li><li>Electronic chip design and programming</li><li>Electronic equipment and hardware systems design and programming</li><li>Social media site development and management services</li><li>Digital content services</li><li>Vision and design consulting</li><li>Resolution of large-scale computer problems</li><li>Computer installation</li><li>Software installation</li><li>IT security management</li></ul>
+            </div>
+            <div class="legal-category">
+              <h4> 4. AI Consulting & Specialized Hosting</h4>
+              <ul><li>Cybersecurity consulting</li><li>Protection systems consulting</li><li>Cyber risk management services</li><li>AI and innovation consulting/research</li><li>Technology project management</li><li>Information technology consulting</li><li>Data processing and website hosting services</li><li>Provision of hosting infrastructure and data processing services</li><li>Software application services provision</li><li>Remote access services provision</li></ul>
+            </div>
+            <div class="legal-category">
+              <h4> 5. Data Infrastructure & Management Consulting</h4>
+              <ul><li>Data processing</li><li>Data entry services</li><li>Data classification and analysis services</li><li>Web hosting</li><li>Electronic directory and e-malls creation</li><li>Network site content entry and provision</li><li>Software and data duplication on disks</li><li>Strategic consulting services</li><li>Project management services</li><li>Digital content management services</li></ul>
+            </div>
+            <div class="legal-category">
+              <h4> 6. Marketing, Advertising & Digital Media</h4>
+              <ul><li>Advertising</li><li>Digital marketing</li><li>Public relations and digital media consulting</li><li>Brochure and leaflet publications</li><li>Online marketing services</li><li>Direct marketing</li><li>Social media services</li><li>Sales promotion</li><li>Online advertising</li><li>Digital media management</li><li>Social media consulting</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/icon_ai_cyber.mp4" type="video/mp4"></video><h3>AI & Cybersecurity Engineering</h3><p>Designing cyber security architecture, AI research, risk management, and protection systems consultancy.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/icon_programming_optimized.mp4" type="video/mp4"></video><h3>Software & Application Development</h3><p>Custom software development, computer programming, social media program design, and website structure creation.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/icon_data_hosting_optimized.mp4" type="video/mp4"></video><h3>Data Architecture & Web Hosting</h3><p>Data processing, classification, and analysis services, specialized hosting, and database system design.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/icon_consulting_optimized.mp4" type="video/mp4"></video><h3>Strategic & Technology Consulting</h3><p>Strategic management consultancy, technology project management, and specialized IT consultancy services.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_digital_retail_optimized.mp4" type="video/mp4"></video><h3>Digital Retail & E-commerce</h3><p>Retail sale via internet/mail order, direct sale via television, and electronic directory creation.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_marketing_optimized.mp4" type="video/mp4"></video><h3>Digital Marketing & Advertising</h3><p>Digital marketing, online advertising, sales promotion, and social media consultancy/management services.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_e_guides_optimized.mp4" type="video/mp4"></video><h3>Digital Content Engineering</h3><p>Digital content services, content management, and creation of publications (brochures & leaflets).</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_hardware_systems.mp4" type="video/mp4"></video><h3>Hardware Systems & Installation</h3><p>Design/programming of electronic chips, design of electronic equipment systems, and computer/software installation.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/Advanced_Technical_Resolution.mp4" type="video/mp4"></video><h3>Advanced Technical Resolution</h3><p>Resolution of large-scale computer problems and provision of technical application services.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_cyber_security_optimized.mp4" type="video/mp4"></video><h3>Advanced Cyber Security</h3><p>Comprehensive cyber defense, threat intelligence, and incident response strategies for robust protection.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_data_analytics_optimized.mp4" type="video/mp4"></video><h3>Big Data Analytics</h3><p>Unlocking insights from vast datasets for strategic decision-making and operational optimization.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_it_software_optimized.mp4" type="video/mp4"></video><h3>IT Software Solutions</h3><p>Tailored IT software development, integration, and maintenance for enterprise efficiency.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_performance_marketing.mp4" type="video/mp4"></video><h3>Performance Marketing</h3><p>Data-driven marketing campaigns focused on measurable results and ROI optimization.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/video_gaming_tech.mp4" type="video/mp4"></video><h3>Interactive Gaming Technology</h3><p>Development and deployment of engaging interactive gaming solutions and platforms.</p></div>
+        <div class="service-card"><video autoplay muted loop playsinline class="service-icon-video"><source src="image/icon_semiconductor_ai_research.mp4" type="video/mp4"></video><h3>Semiconductor AI Research & Chip Innovation</h3><p>Advanced R&D in AI-driven chip design, semiconductor materials, and next-generation computing architectures for sustainable digital transformation.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="investment-pitch" class="contact-section">
+    <div class="container">
+      <h2>Invest, Partner, and Innovate with The Global Execution Hub</h2>
+      <div class="about-grid">
+        <div class="about-text" style="padding-left: 0; text-align: left;">
+          <p style="font-size:1.5rem; font-weight:bold; text-align:center;">"A New Asset Class: Where Physics Meets the Digital Economy"</p>
+          <p>At <strong>GHADI ELITE GLOBAL</strong>, we don't just offer a product — we are creating a new global asset class at the intersection of semiconductor engineering, smart energy management, and predictive AI algorithms. The current computing paradigm suffers from massive, unmeasured energy waste — up to 40% of energy is lost as heat even in idle mode — a hidden cost that threatens both profitability and sustainability.</p>
+          <p>We have developed a proprietary approach to quantify, reduce, and tokenize energy efficiency at the chip level. This enables:</p>
+          <ul><li><strong>20–40% reduction</strong> in operational energy bills for data centers and high‑performance computing facilities.</li><li>A new, verifiable digital asset backed by real energy savings — not speculation.</li><li>The first integrated ecosystem linking physical computing efficiency to global financial markets, turning an energy problem into an investable opportunity.</li></ul>
+          <p><strong>For Businesses:</strong> Direct OPEX reduction, new revenue streams from efficiency gains, and an enhanced ESG profile.</p>
+          <p><strong>For Governments:</strong> A precise tool to measure and incentivize data center efficiency, strengthen digital and energy sovereignty, and attract global investment.</p>
+          <p><strong>For Investors:</strong> Dual returns (efficiency‑backed digital assets + sovereign wealth fund participation), a natural hedge against energy and crypto volatility, and early access to pioneering global patents.</p>
+          <p><strong>For Industry:</strong> Accelerated innovation in advanced cooling, higher‑efficiency chips, reduced carbon footprint, and a new transparency standard.</p>
+          <p><strong>We are looking for:</strong> Strategic partners (tech or manufacturing), angel investors and VCs who believe in deep tech, early adopters, and talented developers and researchers.</p>
+          <p style="font-style:italic; border-left: 5px solid var(--primary-blue); padding-left: 1.5rem; margin: 2rem 0; background: var(--primary-blue-subtle); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">"We do not compete with manufacturers; we provide the intelligent software infrastructure that makes them more efficient and profitable. We give nations and companies the weapon of knowledge — the ability to understand and improve the system, not just own it."</p>
+          <p style="font-weight:bold; text-align:center; font-size:1.2rem;">"We deserve trust."</p>
+          <a href="#contact" class="btn primary-btn">Connect with Our Partnership Team</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <h2>Reach Out to GHADI Elite Global</h2>
+      <div class="contact-info">
+        <div class="info-card"><i class="fas fa-map-marker-alt"></i><h4>Registered Address (UAE)</h4><p>Shams Business Center, Sharjah Media City Free Zone, Al Messaned, Sharjah, UAE.</p></div>
+        <div class="info-card"><i class="fas fa-envelope"></i><h4>Official Emails</h4><p><strong>Official:</strong> info@g-elite-g.com</p><p><strong>Administration:</strong> gelitesystem@gmail.com</p></div>
+        <div class="info-card"><i class="fas fa-phone"></i><h4>Phone / WhatsApp</h4><p>+201033505000</p><p>+96181987432</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; <span id="current-year"></span> <strong>G-ELITE-G / GHADI Elite Global for Smart Platforms LLC</strong>. All rights reserved.</p>
+      <div style="font-size: 0.9rem; margin-top: 12px;"><strong>License Number:</strong> 2538381.01 | <strong>TRN:</strong> 105074971000001 | <strong>Managing Director:</strong> Ahmed Hamdy Hassan Mohamed Ali | <strong>Jurisdiction:</strong> Sharjah Courts & UAE Federal Laws</div>
+      <div style="margin-top: 15px;"><a href="#licensed-activities"><i class="fas fa-list-ul"></i> Licensed Activities Register</a></div>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        const toggleBrief = document.getElementById('toggleFoundationalBrief');
+        const briefDiv = document.getElementById('foundationalBrief');
+        if (toggleBrief && briefDiv) {
+          toggleBrief.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isHidden = briefDiv.style.display === 'none' || briefDiv.style.display === '';
+            if (isHidden) {
+              briefDiv.style.display = 'block';
+              toggleBrief.innerHTML = '<i class="fas fa-scroll"></i>  Hide Foundational Brief';
+              toggleBrief.setAttribute('aria-expanded', 'true');
+            } else {
+              briefDiv.style.display = 'none';
+              toggleBrief.innerHTML = '<i class="fas fa-scroll"></i>  Read Foundational Brief';
+              toggleBrief.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        const toggleActivities = document.getElementById('toggleActivitiesBtn');
+        const activitiesList = document.getElementById('activitiesFullList');
+        if (toggleActivities && activitiesList) {
+          toggleActivities.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isHidden = activitiesList.style.display === 'none' || activitiesList.style.display === '';
+            if (isHidden) {
+              activitiesList.style.display = 'block';
+              toggleActivities.innerHTML = '<i class="fas fa-list-ul"></i> Hide Legal & Activities Register';
+              toggleActivities.setAttribute('aria-expanded', 'true');
+            } else {
+              activitiesList.style.display = 'none';
+              toggleActivities.innerHTML = '<i class="fas fa-list-ul"></i> Show Legal & Activities Register';
+              toggleActivities.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        // نستخدم الـ ID لضمان توجيه زر المنصة فقط وليس الداشبورد
+         document.querySelectorAll('#platform-btn,         #platform-btn-mobile').forEach(btn => {
+
+          btn.addEventListener('click', () => window.location.href = '/platform/');
+        });
+
+        const navToggle = document.getElementById('nav-toggle');
+        const mobileNav = document.getElementById('mobile-nav');
+        if (navToggle && mobileNav) {
+          navToggle.addEventListener('click', function() {
+            const isOpen = mobileNav.classList.toggle('is-open');
+            navToggle.classList.toggle('active');
+            navToggle.setAttribute('aria-expanded', isOpen);
+          });
+          mobileNav.querySelectorAll('a, button').forEach(link => {
+            link.addEventListener('click', () => {
+              mobileNav.classList.remove('is-open');
+              navToggle.classList.remove('active');
+              navToggle.setAttribute('aria-expanded', 'false');
+            });
+          });
+        }
+
+        const yearSpan = document.getElementById('current-year');
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function(e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              e.preventDefault();
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          });
+        });
+      });
+    })();
+ </script>
+</body>
+</html>
+
+
+
+
+
+

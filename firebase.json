@@ -1,0 +1,30 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "ghadiApi",
+        "region": "us-central1"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs20",
+      "region": "us-central1"
+    }
+  ],
+  "firestore": {
+    "database": "g-elite-g",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

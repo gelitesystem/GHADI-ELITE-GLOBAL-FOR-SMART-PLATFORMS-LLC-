@@ -1,0 +1,103 @@
+<!doctype html>
+<!--
+  اتجاه التصميم: مساحة إنجاز هادئة.
+  قاعدة الصفحة: يظهر الهدف والنتيجة أولاً؛ تفاصيل المشروع والتنفيذ لا تظهر إلا بطلب صريح.
+  لا توجد أسرار أو منفذات خارجية هنا. يعتمد العميل على /api وghadiApi فقط.
+-->
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ghadi" />
+    <meta name="theme-color" content="#0d141c" />
+    <link rel="icon" type="image/png" href="/manus-storage/ghadi-mark_5106100a.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/dashboard.css" />
+    <title>Ghadi |  الإنجاز</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#intentInput">انتقل إلى وصف الهدف</a>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="/dashboard.html" aria-label="Ghadi —  الإنجاز">
+          <img src="/manus-storage/ghadi-mark_5106100a.png" width="38" height="38" alt="رمز Ghadi" />
+          <span class="brand-copy"><strong>Ghadi</strong><small> الإنجاز</small></span>
+        </a>
+        <div class="connection" aria-live="polite" title="حالة Ghadi API"><i id="connectionDot" class="connection-dot checking" aria-hidden="true"></i><span id="connectionLabel">جارٍ التحقق</span></div>
+        <button id="openInspectorBtn" class="header-action" type="button" aria-haspopup="dialog" aria-controls="inspector" aria-label="فتح تفاصيل المشروع"><span>التفاصيل</span><i aria-hidden="true">←</i></button>
+      </header>
+
+      <main class="main-stage">
+        <section class="intent-stage" aria-labelledby="intentTitle">
+          <p id="projectLabel" class="project-label">مشروع جديد</p>
+          <h1 id="intentTitle">ماذا تريد أن نصنع؟</h1>
+          <p class="stage-intro">صف النتيجة بلغتك. يظهر لك العمل عندما يصبح هناك شيء حقيقي للمراجعة.</p>
+          <form id="intentForm" class="intent-composer" novalidate>
+            <label class="sr-only" for="intentInput">وصف الهدف</label>
+            <textarea id="intentInput" rows="4" maxlength="10000" placeholder="مثال: اصنع صفحة تعريف عربية لتطبيق إدارة مصروفات، مع نسخة أولى جاهزة للمعاينة." autocomplete="off"></textarea>
+            <div id="attachmentShelf" class="attachment-shelf" aria-live="polite" hidden></div>
+            <div class="composer-footer">
+              <button id="attachBtn" class="attach-button" type="button" aria-label="إضافة ملف أو صورة أو PDF" title="إرفاق سياق"><span aria-hidden="true">+</span><span>إرفاق</span></button>
+              <p id="composerHint" class="composer-hint">يمكنك إرفاق صورة أو PDF حتى 25 MB.</p>
+              <button id="submitBtn" class="submit-button" type="submit"><span id="submitLabel">ابدأ</span><span aria-hidden="true">↵</span></button>
+            </div>
+          </form>
+          <input id="fileInput" type="file" accept="image/*,application/pdf" multiple hidden />
+        </section>
+
+        <section id="resultSurface" class="result-surface state-idle" aria-labelledby="resultTitle" aria-live="polite">
+          <div class="result-head"><p id="resultKicker" class="result-kicker">النتيجة</p><span id="runState" class="state-chip">جاهز</span></div>
+          <div id="emptyResult" class="empty-result">
+            <div class="quiet-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h2 id="resultTitle">من الوصف إلى عمل يمكن مراجعته</h2>
+            <p>لن تظهر أدوات أو مراحل غير ضرورية هنا. عند بدء العمل، سترى النتيجة أو ما يحتاج إلى قرار منك.</p>
+          </div>
+          <article id="runResult" class="run-result" hidden>
+            <div class="run-leading"><span id="resultType" class="result-type">تشغيل</span><time id="runTime" class="run-time"></time></div>
+            <h2 id="runTitle">جارٍ فهم الهدف</h2>
+            <p id="runSummary"></p>
+            <div id="primaryOutput" class="primary-output" hidden><pre id="outputText"><code></code></pre></div>
+            <div id="approvalCard" class="approval-card" hidden>
+              <div><p class="approval-kicker">تحتاج موافقتك</p><h3 id="approvalTitle">أثر خارجي مقترح</h3><p id="approvalDescription"></p></div>
+              <button id="reviewApprovalBtn" class="review-button" type="button">راجع التفاصيل</button>
+            </div>
+          </article>
+          <div class="result-footer"><span id="resultEvidence">لا يوجد تشغيل نشط</span><button id="viewDetailsBtn" class="details-link" type="button">عرض التفاصيل</button></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="inspector" class="inspector" aria-labelledby="inspectorTitle">
+      <div class="inspector-card">
+        <header class="inspector-header"><div><p class="inspector-kicker">سياق قابل للمراجعة</p><h2 id="inspectorTitle">تفاصيل العمل</h2></div><button id="closeInspectorBtn" class="close-button" type="button" aria-label="إغلاق التفاصيل">×</button></header>
+        <nav class="inspector-nav" aria-label="أقسام">
+          <button class="inspector-tab active" type="button" data-detail="project" aria-selected="true">المشروع</button>
+          <button class="inspector-tab" type="button" data-detail="work" aria-selected="false">العمل</button>
+          <button class="inspector-tab" type="button" data-detail="files" aria-selected="false">الملفات</button>
+          <button class="inspector-tab" type="button" data-detail="evidence" aria-selected="false">السجل</button>
+        </nav>
+        <section id="detail-project" class="detail-view active" aria-label="تفاصيل المشروع">
+          <dl class="fact-list"><div><dt>المشروع</dt><dd id="factProject">مشروع جديد</dd></div><div><dt>الاتصال</dt><dd id="factConnection">جارٍ التحقق</dd></div><div><dt>المسار</dt><dd class="mono">/api</dd></div><div><dt>النموذج</dt><dd class="mono">server-managed</dd></div></dl>
+          <p class="detail-note">يحفظ Ghadi الأسرار وخدمات النموذج في الخادم. لا يرسل المتصفح مفتاح Gemini أو أي اعتماد مزود خارجي.</p>
+        </section>
+        <section id="detail-work" class="detail-view" aria-label="خطة العمل" hidden><ol id="planList" class="plan-list"><li><span class="step-dot neutral"></span><div><strong>في انتظار هدف</strong><p>ستظهر الخطة التي يعيدها الخادم هنا.</p></div></li></ol></section>
+        <section id="detail-files" class="detail-view" aria-label="الملفات والمرفقات" hidden><div id="fileList" class="file-list"><div class="empty-list"><strong>لا يوجد سياق مرفق</strong><p>أرفق صورة أو PDF لتظهر حالته هنا.</p></div></div></section>
+        <section id="detail-evidence" class="detail-view" aria-label="سجل العمل" hidden><div id="eventList" class="event-list"><div class="empty-list"><strong>لا يوجد سجل بعد</strong><p>تظهر هنا فقط الأحداث التي أعادها الخادم أو أثبتتها الواجهة.</p></div></div></section>
+        <footer class="inspector-footer"><button id="exportBtn" class="export-button" type="button">تصدير لقطة</button><p>اللقطة تتضمن ما ظهر فعلياً في هذه الجلسة.</p></footer>
+      </div>
+    </dialog>
+
+    <dialog id="approvalModal" class="approval-modal" aria-labelledby="approvalModalTitle">
+      <form method="dialog" class="approval-modal-card">
+        <button class="close-button modal-close" value="close" type="submit" aria-label="إغلاق">×</button>
+        <p class="approval-kicker">قرار محمي</p><h2 id="approvalModalTitle">راجع الأثر قبل الموافقة</h2><div id="approvalFacts" class="approval-facts"></div>
+        <p class="detail-note">لا ترسل هذه الواجهة بريداً أو دفعة أو نشراً بنفسها. الموافقة هنا لا تنفذ شيئاً إلا إذا أعاد الخادم عقد موافقة صالحاً ومفعلاً.</p>
+        <button id="confirmApprovalBtn" class="approve-button" type="button" disabled>الموافقة غير مفعلة في الخادم</button>
+      </form>
+    </dialog>
+    <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <script src="/assets/dashboard.js" defer></script>
+  </body>
+</html>

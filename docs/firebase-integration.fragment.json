@@ -1,0 +1,17 @@
+{
+  "hostingAdditions": {
+    "rewrites": [
+      { "source": "/api/**", "function": { "functionId": "ghadiApi", "region": "us-central1" } }
+    ]
+  },
+  "functionsAdditions": {
+    "source": "functions",
+    "runtime": "nodejs20",
+    "region": "us-central1"
+  },
+  "firestoreAdditions": {
+    "database": "G-Elite-G",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
