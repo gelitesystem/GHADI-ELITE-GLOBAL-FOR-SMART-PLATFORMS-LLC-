@@ -70,3 +70,7 @@ node_modules/
 functions/.env
 functions/.env
 node_modules/
+
+.ghadi-foundation/backups/
+.ghadi-foundation/reports/
+GHADI_FOUNDATION_STATUS.md
