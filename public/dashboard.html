@@ -1,96 +1,97 @@
 <!doctype html>
-<!-- Ghadi Workspace:  -->
-<html lang="ar" dir="rtl">
+<!-- GHADI AI Workspace — Quiet Command Surface: one goal, visible server-confirmed state, and no implied external execution. -->
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ghadi Workspace " />
-    <meta name="theme-color" content="#101816" />
-    <link rel="icon" type="image/png" href="image/g_elite_g-logo_final.png">
+    <meta name="description" content="GHADI AI is a controlled workspace for reviewable operational outcomes." />
+    <meta name="theme-color" content="#0d1816" />
+    <link rel="icon" type="image/png" href="image/g_elite_g-logo_final.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/assets/dashboard.css" />
-    <title>Ghadi Workspace</title>
+    <title>GHADI AI — Workspace</title>
   </head>
   <body>
-    <a class="skip-link" href="#intentInput">انتقل إلى وصف العمل</a>
+    <a class="skip-link" href="#intentInput">Skip to work request</a>
     <div class="app-shell">
       <header class="app-header">
-        <a class="brand" href="/dashboard.html" aria-label="Ghadi Workspace">
-      <img src="/image/g_elite_g-logo_final.png" alt="رمز Ghadi" width="34" height="34" />
-          <span class="brand-copy"><strong>Ghadi</strong><small>WORKSPACE</small></span>
+        <a class="brand" href="/" aria-label="GHADI AI home">
+          <img src="/image/g_elite_g-logo_final.png" alt="G-ELITE-G symbol" width="45" height="45" />
+          <span class="brand-copy"><strong>GHADI AI</strong><small>WORKSPACE</small></span>
         </a>
-        <div class="workspace-identity"><strong id="projectLabel">مساحة عمل مؤقتة</strong><span id="ownershipLabel">جلسة محلية</span></div>
+        <div class="workspace-identity"><strong id="projectLabel">Untitled workspace</strong><span id="ownershipLabel">Local session</span></div>
         <div class="header-actions">
-          <div class="connection" aria-live="polite" title="حالة Ghadi API"><i id="connectionDot" class="connection-dot checking"></i><span id="connectionLabel">جارٍ التحقق</span></div>
-          <button id="openInspectorBtn" class="quiet-button" type="button" aria-haspopup="dialog" aria-controls="inspector">المشروع</button>
+          <div class="connection" aria-live="polite" title="GHADI API connection status"><i id="connectionDot" class="connection-dot checking"></i><span id="connectionLabel">Checking</span></div>
+          <button id="openInspectorBtn" class="quiet-button" type="button" aria-haspopup="dialog" aria-controls="inspector">Project</button>
         </div>
       </header>
 
       <main class="main-stage">
-        <aside class="operations-rail" aria-label="حالة مساحة العمل">
-          <div class="rail-top"><p class="section-kicker">مسار التنفيذ</p><strong>جلسة جديدة</strong><span id="railStatus">لم يبدأ تشغيل</span></div>
+        <aside class="operations-rail" aria-label="Workspace status">
+          <div class="rail-top"><p class="section-kicker">WORKFLOW</p><strong>New session</strong><span id="railStatus">Not started</span></div>
           <ol class="execution-path">
-            <li class="path-active"><i></i><div><span>النية</span><small>وصف محدد</small></div></li>
-            <li><i></i><div><span>المراجعة</span><small>مخرج قابل للفحص</small></div></li>
-            <li><i></i><div><span>الأثر</span><small>قرار خادمي فقط</small></div></li>
+            <li class="path-active"><i></i><div><span>Intent</span><small>Clear outcome</small></div></li>
+            <li><i></i><div><span>Review</span><small>Inspectable result</small></div></li>
+            <li><i></i><div><span>Effect</span><small>Server-owned decision</small></div></li>
           </ol>
-          <div class="rail-trace"><span>TRACE</span><p id="railTrace">لا يوجد أثر مسجل في هذه الجلسة.</p></div>
-          <div class="rail-rule"><span>بوابة القرار</span><p>لن ينشر Ghadi أو يرسل أو يدفع من هذه الواجهة.</p></div>
+          <div class="rail-trace"><span>TRACE</span><p id="railTrace">No trace recorded in this session.</p></div>
+          <div class="rail-rule"><span>DECISION BOUNDARY</span><p>This interface does not publish, send or pay.</p></div>
         </aside>
-        <div class="primary-flow">
-        <section class="intent-stage" aria-labelledby="intentTitle">
-          <p class="eyebrow"><i></i> مساحة بناء هادئة</p>
-          <h1 id="intentTitle">ما الذي تريد إنجازه؟</h1>
-          <p class="stage-intro">اكتب النتيجة المطلوبة. يعرض Ghadi مخرجاً أو قراراً فقط عندما يؤكده الخادم.</p>
-          <form id="intentForm" class="intent-composer" novalidate>
-            <label class="sr-only" for="intentInput">وصف النتيجة المطلوبة</label>
-            <textarea id="intentInput" rows="4" maxlength="6000" placeholder="مثال: أنشئ صفحة تعريف عربية لمنتج تقني، مع نسخة أولى قابلة للمعاينة ومحتوى واضح." autocomplete="off"></textarea>
-            <div id="attachmentShelf" class="attachment-shelf" aria-live="polite" hidden></div>
-            <div class="composer-footer">
-              <button id="attachBtn" class="attach-button" type="button" aria-label="إرفاق صورة أو PDF"><span aria-hidden="true">+</span> إرفاق</button>
-              <p id="composerHint" class="composer-hint">صورة أو PDF حتى 25 MB. لا يصبح الملف جزءاً من العمل إلا بتأكيد الخادم.</p>
-              <button id="submitBtn" class="primary-button" type="submit"><span id="submitLabel">ابدأ العمل</span><span aria-hidden="true">↵</span></button>
-            </div>
-          </form>
-          <input id="fileInput" type="file" accept="image/*,application/pdf" multiple hidden />
-          <p class="privacy-line">لا يرسل المتصفح مفاتيح Gemini أو اعتماداً خارجياً. الأثر الخارجي يحتاج موافقة خادمية مملوكة.</p>
-        </section>
 
-        <section id="resultSurface" class="result-surface state-idle" aria-labelledby="resultTitle" aria-live="polite">
-          <header class="result-head"><div><p class="section-kicker">النتيجة</p><h2 id="resultTitle">ابدأ بهدف واضح</h2></div><span id="runState" class="state-chip">جاهز</span></header>
-          <div id="emptyResult" class="empty-result"><div class="path-mark" aria-hidden="true"><i></i><i></i><i></i></div><p>ستظهر المعاينة أو الملف أو القرار أو حالة الفشل التي أكدها Ghadi هنا.</p></div>
-          <article id="runResult" class="run-result" hidden>
-            <div class="run-meta"><span id="resultType">تشغيل</span><time id="runTime"></time></div>
-            <h2 id="runTitle">يجري فهم الهدف</h2><p id="runSummary"></p>
-            <div id="primaryOutput" class="artifact-card" hidden><header><span>مخرج قابل للمراجعة</span><button id="copyOutputBtn" class="text-button" type="button">نسخ</button></header><pre id="outputText"><code></code></pre></div>
-            <div id="approvalCard" class="approval-card" hidden><div><p>قرار مطلوب</p><h3 id="approvalTitle">أثر خارجي مقترح</h3><span id="approvalDescription"></span></div><button id="reviewApprovalBtn" class="quiet-button danger-edge" type="button">راجع القرار</button></div>
-          </article>
-          <footer class="result-footer"><span id="resultEvidence">لا يوجد تشغيل نشط</span><button id="viewDetailsBtn" class="text-button" type="button">عرض النشاط</button></footer>
-        </section>
+        <div class="primary-flow">
+          <section class="intent-stage" aria-labelledby="intentTitle">
+            <p class="eyebrow"><i></i> CONTROLLED WORKSPACE</p>
+            <h1 id="intentTitle">What outcome should we make reviewable?</h1>
+            <p class="stage-intro">Describe the result you need. GHADI AI shows an output or a decision state only when the server confirms it.</p>
+            <form id="intentForm" class="intent-composer" novalidate>
+              <label class="sr-only" for="intentInput">Describe the outcome you need</label>
+              <textarea id="intentInput" rows="4" maxlength="6000" placeholder="Example: Draft a concise product page for a technical service, with a first reviewable version and precise copy." autocomplete="off"></textarea>
+              <div id="attachmentShelf" class="attachment-shelf" aria-live="polite" hidden></div>
+              <div class="composer-footer">
+                <button id="attachBtn" class="attach-button" type="button" aria-label="Attach an image or PDF"><span aria-hidden="true">+</span> Attach</button>
+                <p id="composerHint" class="composer-hint">Image or PDF, up to 25 MB. A file becomes working context only after server confirmation.</p>
+                <button id="submitBtn" class="primary-button" type="submit"><span id="submitLabel">Start work</span><span aria-hidden="true">↵</span></button>
+              </div>
+            </form>
+            <input id="fileInput" type="file" accept="image/*,application/pdf" multiple hidden />
+            <p class="privacy-line">The browser does not carry Gemini keys or direct executor credentials. External effect requires an owned server approval.</p>
+          </section>
+
+          <section id="resultSurface" class="result-surface state-idle" aria-labelledby="resultTitle" aria-live="polite">
+            <header class="result-head"><div><p class="section-kicker">RESULT</p><h2 id="resultTitle">Start with a clear outcome</h2></div><span id="runState" class="state-chip">Ready</span></header>
+            <div id="emptyResult" class="empty-result"><div class="path-mark" aria-hidden="true"><i></i><i></i><i></i></div><p>A preview, file, decision or a server-confirmed failure will appear here.</p></div>
+            <article id="runResult" class="run-result" hidden>
+              <div class="run-meta"><span id="resultType">Run</span><time id="runTime"></time></div>
+              <h2 id="runTitle">Understanding the outcome</h2><p id="runSummary"></p>
+              <div id="primaryOutput" class="artifact-card" hidden><header><span>REVIEWABLE OUTPUT</span><button id="copyOutputBtn" class="text-button" type="button">Copy</button></header><pre id="outputText"><code></code></pre></div>
+              <div id="approvalCard" class="approval-card" hidden><div><p>DECISION REQUIRED</p><h3 id="approvalTitle">Proposed external effect</h3><span id="approvalDescription"></span></div><button id="reviewApprovalBtn" class="quiet-button danger-edge" type="button">Review decision</button></div>
+            </article>
+            <footer class="result-footer"><span id="resultEvidence">No active run</span><button id="viewDetailsBtn" class="text-button" type="button">View activity</button></footer>
+          </section>
         </div>
       </main>
     </div>
 
     <dialog id="inspector" class="inspector" aria-labelledby="inspectorTitle">
       <div class="inspector-card">
-        <header class="inspector-header"><div><p class="section-kicker">سياق قابل للمراجعة</p><h2 id="inspectorTitle">مساحة العمل</h2></div><button id="closeInspectorBtn" class="close-button" type="button" aria-label="إغلاق">×</button></header>
-        <nav class="inspector-nav" aria-label="تفاصيل مساحة العمل">
-          <button class="inspector-tab active" type="button" data-detail="project" aria-selected="true">المشروع</button>
-          <button class="inspector-tab" type="button" data-detail="work" aria-selected="false">العمل</button>
-          <button class="inspector-tab" type="button" data-detail="activity" aria-selected="false">النشاط</button>
-          <button class="inspector-tab" type="button" data-detail="files" aria-selected="false">الملفات</button>
+        <header class="inspector-header"><div><p class="section-kicker">REVIEWABLE CONTEXT</p><h2 id="inspectorTitle">Workspace</h2></div><button id="closeInspectorBtn" class="close-button" type="button" aria-label="Close">×</button></header>
+        <nav class="inspector-nav" aria-label="Workspace details">
+          <button class="inspector-tab active" type="button" data-detail="project" aria-selected="true">Project</button>
+          <button class="inspector-tab" type="button" data-detail="work" aria-selected="false">Work</button>
+          <button class="inspector-tab" type="button" data-detail="activity" aria-selected="false">Activity</button>
+          <button class="inspector-tab" type="button" data-detail="files" aria-selected="false">Files</button>
         </nav>
-        <section id="detail-project" class="detail-view active"><dl class="fact-list"><div><dt>المساحة</dt><dd id="factProject">مساحة عمل مؤقتة</dd></div><div><dt>الملكية</dt><dd id="factOwnership">جلسة محلية — الهوية غير مفعلة</dd></div><div><dt>الاتصال</dt><dd id="factConnection">جارٍ التحقق</dd></div><div><dt>المسار</dt><dd class="mono">/api</dd></div><div><dt>النموذج</dt><dd class="mono">server-managed</dd></div></dl><p class="detail-note">تصبح الجلسة مشروعاً مملوكاً عندما يعيد الخادم هوية مشروع مرتبطة بمستخدم مصادق عليه.</p></section>
-        <section id="detail-work" class="detail-view" hidden><div id="planList" class="plan-list"><div class="empty-list"><strong>لا توجد خطة بعد</strong><p>تظهر الخطوات التي يؤكدها الخادم بعد بدء تشغيل حقيقي.</p></div></div></section>
-        <section id="detail-activity" class="detail-view" hidden><div id="eventList" class="event-list"><div class="empty-list"><strong>لا يوجد نشاط بعد</strong><p>يسجل Ghadi الأحداث التي أثبتها العميل أو أعادها الخادم.</p></div></div></section>
-        <section id="detail-files" class="detail-view" hidden><div id="fileList" class="file-list"><div class="empty-list"><strong>لا توجد ملفات</strong><p>أرفق صورة أو PDF لتظهر حالة القبول هنا.</p></div></div></section>
-        <footer class="inspector-footer"><button id="exportBtn" class="quiet-button" type="button">تصدير لقطة</button><span>تضم اللقطة ما ظهر في هذه الجلسة فقط.</span></footer>
+        <section id="detail-project" class="detail-view active"><dl class="fact-list"><div><dt>Workspace</dt><dd id="factProject">Untitled workspace</dd></div><div><dt>Ownership</dt><dd id="factOwnership">Local session — identity is not enabled</dd></div><div><dt>Connection</dt><dd id="factConnection">Checking</dd></div><div><dt>Route</dt><dd class="mono">/api</dd></div><div><dt>Model</dt><dd class="mono">server-managed</dd></div></dl><p class="detail-note">A session becomes an owned workspace only when the server returns a project identity linked to an authenticated user.</p></section>
+        <section id="detail-work" class="detail-view" hidden><div id="planList" class="plan-list"><div class="empty-list"><strong>No plan yet</strong><p>Server-confirmed steps appear after a real run begins.</p></div></div></section>
+        <section id="detail-activity" class="detail-view" hidden><div id="eventList" class="event-list"><div class="empty-list"><strong>No activity yet</strong><p>GHADI AI records events the client proves or the server returns.</p></div></div></section>
+        <section id="detail-files" class="detail-view" hidden><div id="fileList" class="file-list"><div class="empty-list"><strong>No files</strong><p>Attach an image or PDF to see its acceptance state here.</p></div></div></section>
+        <footer class="inspector-footer"><button id="exportBtn" class="quiet-button" type="button">Export snapshot</button><span>The snapshot contains only what this session displayed.</span></footer>
       </div>
     </dialog>
 
-    <dialog id="approvalModal" class="approval-modal" aria-labelledby="approvalModalTitle"><form method="dialog" class="approval-modal-card"><button class="close-button modal-close" value="close" type="submit" aria-label="إغلاق">×</button><p class="section-kicker danger-copy">قرار محمي</p><h2 id="approvalModalTitle">راجع الأثر قبل الموافقة</h2><div id="approvalFacts" class="approval-facts"></div><p class="detail-note">هذه الصفحة لا تنفذ دفعاً أو نشراً أو إرسالاً. لا يظهر زر تنفيذ فعلي حتى يصدر عقد خادمي صالح ومملوك.</p><button id="confirmApprovalBtn" class="primary-button" type="button" disabled>الموافقة غير مفعلة في الخادم</button></form></dialog>
+    <dialog id="approvalModal" class="approval-modal" aria-labelledby="approvalModalTitle"><form method="dialog" class="approval-modal-card"><button class="close-button modal-close" value="close" type="submit" aria-label="Close">×</button><p class="section-kicker danger-copy">PROTECTED DECISION</p><h2 id="approvalModalTitle">Review the effect before approval</h2><div id="approvalFacts" class="approval-facts"></div><p class="detail-note">This page does not pay, publish or send. A real execution control appears only after the server provides a valid, owned contract.</p><button id="confirmApprovalBtn" class="primary-button" type="button" disabled>Server approval is not enabled</button></form></dialog>
     <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
     <script src="/assets/dashboard.js" defer></script>
   </body>
