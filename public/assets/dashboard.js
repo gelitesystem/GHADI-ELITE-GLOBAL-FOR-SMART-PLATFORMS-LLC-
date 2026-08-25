@@ -70,13 +70,20 @@ function recordEvent(title, detail, tone = "neutral") {
   renderEvents();
 }
 
+// دالة مساعدة لتحديث النصوص بأمان دون الحاجة لفحص كل عنصر يدويًا
+const setText = (element, value) => {
+  if (element) element.textContent = value;
+};
+
 function renderWorkspace() {
-  dom.projectLabel.textContent = state.workspace.title;
-  dom.factProject.textContent = state.workspace.title;
-  dom.ownershipLabel.textContent = state.workspace.owned ? "Owned project" : "Local session";
-  dom.factOwnership.textContent = state.workspace.owned ? "Server-confirmed ownership" : "Local session — identity is not enabled";
-  dom.factConnection.textContent = state.online ? "GHADI API connected" : "No confirmed server connection";
+  setText(dom.projectLabel, state.workspace.title);
+  setText(dom.factProject, state.workspace.title);
+  setText(dom.ownershipLabel, state.workspace.owned ? "Owned project" : "Local session");
+  setText(dom.factOwnership, state.workspace.owned ? "Server-confirmed ownership" : "Local session — identity is not enabled");
+  setText(dom.factConnection, state.online ? "GHADI API connected" : "No confirmed server connection");
 }
+
+
 
 function setOnline(online) {
   state.online = online;

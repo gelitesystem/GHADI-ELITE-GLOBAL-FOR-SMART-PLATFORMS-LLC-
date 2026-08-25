@@ -21,10 +21,16 @@
     <img src="/image/g_elite_g-logo_final.png" alt="G-ELITE-G symbol" width="180" style="height: auto" />
     <span class="brand-copy"><strong>GHADI AI</strong></span>
   </a>
-  <div class="header-actions">
-    <div class="connection" aria-live="polite" title="GHADI API connection status"><i id="connectionDot" class="connection-dot checking"></i><span id="connectionLabel">Checking</span></div>
-    <button id="openInspectorBtn" class="quiet-button" type="button" aria-haspopup="dialog" aria-controls="inspector">Project</button>
+<div class="header-actions">
+  <div class="connection" aria-live="polite" title="GHADI API connection status">
+    <i id="connectionDot" class="connection-dot checking"></i>
+    <span id="connectionLabel">Checking</span>
   </div>
+  <span id="ownershipLabel" hidden>Local session</span>
+  <button id="openInspectorBtn" class="quiet-button" type="button" aria-haspopup="dialog" aria-controls="inspector">
+    <span id="projectLabel">Project</span>
+  </button>
+</div>
 </header>
 
       <main class="main-stage">
