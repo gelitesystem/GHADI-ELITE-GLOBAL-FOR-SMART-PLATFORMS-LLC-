@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- GHADI ELITE GLOBAL FOR SMART PLATFORMS — Enhanced Public Website v2.0 -->
+<!-- GHADI ELITE GLOBAL FOR SMART PLATFORMS — Enhanced Public Website v2.0 (Header reduced) -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -224,7 +224,7 @@
         border: 0;
       }
 
-      /* Header & navigation */
+      /* Header & navigation (Reduced height) */
       .site-header {
         position: sticky;
         z-index: 50;
@@ -239,8 +239,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 1.25rem;
-        min-height: 78px;
-        padding-block: calc(.6rem + env(safe-area-inset-top)) .6rem;
+        min-height: 64px; /* was 78px */
+        padding-block: calc(.4rem + env(safe-area-inset-top)) .4rem; /* reduced padding */
       }
       .brand {
         display: inline-flex;
@@ -251,15 +251,15 @@
         text-decoration: none;
       }
       .brand img {
-        width: clamp(70px, 25vw, 160px);
+        width: clamp(60px, 20vw, 120px); /* reduced max width from 160px */
         height: auto;
         object-fit: contain;
       }
       .brand-copy { display: grid; gap: .08rem; line-height: 1; }
-      .brand-copy strong { font: 800 .91rem/1 Manrope, sans-serif; letter-spacing: .075em; }
+      .brand-copy strong { font: 800 .85rem/1 Manrope, sans-serif; letter-spacing: .075em; } /* slightly smaller */
       .brand-copy span {
         color: var(--muted);
-        font: 700 .59rem/1 Manrope, sans-serif;
+        font: 700 .55rem/1 Manrope, sans-serif;
         letter-spacing: .11em;
       }
       .desktop-nav {
@@ -279,8 +279,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 40px;
-        padding: .52rem .74rem;
+        min-height: 36px; /* was 40px */
+        padding: .45rem .7rem; /* reduced */
         border: 1px solid #bdcbd9;
         border-radius: 9px;
         color: var(--navy);
@@ -302,8 +302,8 @@
       .nav-pill:active { transform: scale(.97); }
       .menu-toggle {
         display: none;
-        width: 43px;
-        height: 42px;
+        width: 40px;  /* slightly smaller */
+        height: 38px;
         padding: 0;
         border: 1px solid #bdcbd9;
         border-radius: 9px;
@@ -313,18 +313,18 @@
       }
       .menu-toggle span {
         display: block;
-        width: 19px;
+        width: 18px;
         height: 2px;
-        margin: 4px auto;
+        margin: 3px auto;
         background: currentColor;
         transition: transform .18s var(--ease), opacity .18s var(--ease);
       }
       .menu-toggle[aria-expanded="true"] span:nth-child(1) {
-        transform: translateY(6px) rotate(45deg);
+        transform: translateY(5px) rotate(45deg);
       }
       .menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
       .menu-toggle[aria-expanded="true"] span:nth-child(3) {
-        transform: translateY(-6px) rotate(-45deg);
+        transform: translateY(-5px) rotate(-45deg);
       }
       .mobile-menu {
         position: fixed;
@@ -332,7 +332,7 @@
         inset-inline: 0;
         inset-block-start: 0;
         min-height: 100dvh;
-        padding: max(6.5rem, calc(5.8rem + env(safe-area-inset-top))) max(1.5rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+        padding: max(5.8rem, calc(5.2rem + env(safe-area-inset-top))) max(1.5rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
         background: rgba(6,28,67,.985);
         color: #fff;
         opacity: 0;
@@ -372,7 +372,7 @@
       /* Hero */
       .hero {
         position: relative;
-        min-height: min(760px, calc(100svh - 78px));
+        min-height: min(760px, calc(100svh - 64px)); /* updated from 78px to 64px */
         overflow: hidden;
         background: var(--navy);
         color: #fff;
@@ -831,19 +831,19 @@
       }
       @media (max-width: 760px) {
         .shell { width: min(100% - 2rem, 1200px); }
-        .header-inner { min-height: 68px; }
-        .brand img { width: 120px; height: auto; }
-        .brand-copy strong { font-size: .8rem; }
-        .brand-copy span { font-size: .52rem; }
+        .header-inner { min-height: 56px; } /* further reduce on mobile */
+        .brand img { width: 100px; height: auto; } /* adjust mobile logo */
+        .brand-copy strong { font-size: .75rem; }
+        .brand-copy span { font-size: .5rem; }
         .desktop-nav { display: none; }
         .menu-toggle { display: block; position: relative; z-index: 51; }
-        .hero { min-height: 650px; }
+        .hero { min-height: 620px; } /* adjust hero */
         .hero-inner {
           grid-template-columns: 1fr;
           gap: 2rem;
-          padding-block: 6rem 2.65rem;
+          padding-block: 5rem 2.5rem;
         }
-        .hero h1 { font-size: clamp(2.75rem, 12vw, 4.2rem); }
+        .hero h1 { font-size: clamp(2.5rem, 11vw, 3.8rem); }
         .hero-principles {
           grid-template-columns: 1fr 1fr;
           gap: .7rem;
@@ -1359,21 +1359,16 @@
         }, { threshold: 0.1 });
 
         videos.forEach(video => {
-          // Initial play attempt
           video.play().catch(() => {});
-          // Re-try on canplaythrough (for browsers that delay autoplay)
           video.addEventListener('canplaythrough', function() {
             this.play().catch(() => {});
           });
-          // Loop fallback
           video.addEventListener('ended', function() {
             this.play().catch(() => {});
           });
-          // Observe for visibility
           videoObserver.observe(video);
         });
 
-        // Manual play for videos with controls attribute (if user interacts)
         document.querySelectorAll('video[controls]').forEach(video => {
           video.addEventListener('click', () => {
             if (video.paused) {
