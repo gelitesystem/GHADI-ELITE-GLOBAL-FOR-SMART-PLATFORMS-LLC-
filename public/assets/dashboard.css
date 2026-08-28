@@ -333,7 +333,7 @@ img { max-width: 100%; }
 .intent-stage h1 {
   max-width: 680px;
   margin: .68rem 0 0;
-  font: 800 clamp(1.5rem, 3.5vw, 2.6rem)/1.12 var(--sans); /* تم تقليل الحجم */
+  font: 800 clamp(1.1rem, 2.5vw, 1.8rem)/1.12 var(--sans); /* تم تقليل الحجم */
   letter-spacing: -.062em;
 }
 .stage-intro {
@@ -978,7 +978,7 @@ img { max-width: 100%; }
   .rail-top strong { font-size: .74rem; }
   .rail-top span { font-size: .55rem; }
   .intent-stage h1 {
-    font-size: clamp(1.5rem, 7vw, 2.2rem);
+    font-size: clamp(1.1rem, 5vw, 1.6rem);
   }
   .composer-footer { flex-wrap: wrap; }
   .composer-hint { order: 3; flex-basis: 100%; }
