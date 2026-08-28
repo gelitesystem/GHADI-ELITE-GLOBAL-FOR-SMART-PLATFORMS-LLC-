@@ -2,7 +2,7 @@
   "name": "ghadi-functions",
   "private": true,
   "engines": {
-    "node": "22"
+    "node": ">=22"
   },
   "main": "lib/index.js",
   "scripts": {
@@ -24,5 +24,9 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
+  },
+  "allowScripts": {
+    "@google/genai@2.19.0": true,
+    "@firebase/util@1.15.3": true
   }
 }
