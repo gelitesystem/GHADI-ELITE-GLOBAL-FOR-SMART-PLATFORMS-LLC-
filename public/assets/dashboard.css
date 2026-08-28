@@ -1,16 +1,16 @@
 /* GHADI AI Workspace — Navy-accented UI, consistent with corporate identity */
 :root {
-  --bg: #0d1816;
-  --deep: #08100f;
-  --panel: #12211e;
-  --raised: #172a26;
+  --bg: #081a30;          /* Navy deep */
+  --deep: #061022;        /* Navy darker */
+  --panel: #0b1f3a;       /* Navy panel */
+  --raised: #0f2a4a;      /* Navy raised */
   --ink: #f2f5f1;
   --soft: #c5d0c9;
   --muted: #8ea098;
   --line: rgba(224,238,229,.13);
   --navy: #061c43;
   --navy-2: #0b2a5d;
-  --blue: #6ca8ff;       /* kept for some accents */
+  --blue: #6ca8ff;        /* kept for some accents */
   --mint: #93d7b1;
   --mint-wash: rgba(147,215,177,.10);
   --amber: #efb66f;
@@ -30,8 +30,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background: radial-gradient(circle at 77% -14%, rgba(60,116,97,.18), transparent 34rem),
-              linear-gradient(135deg, #0f1b18, #091110 70%);
+  background: radial-gradient(circle at 77% -14%, rgba(6,28,67,.18), transparent 34rem),
+              linear-gradient(135deg, #0b1a2e, #061022 70%);
   color: var(--ink);
   font: 400 16px/1.6 var(--sans);
   -webkit-font-smoothing: antialiased;
@@ -96,7 +96,7 @@ img { max-width: 100%; }
   color: var(--ink);
   text-decoration: none;
 }
-.brand img { filter: drop-shadow(0 0 15px rgba(147,215,177,.16)); }
+.brand img { filter: drop-shadow(0 0 15px rgba(108,168,255,.16)); }
 .brand-copy { display: grid; line-height: 1; }
 .brand strong {
   font: 800 1rem var(--sans);
@@ -333,7 +333,7 @@ img { max-width: 100%; }
 .intent-stage h1 {
   max-width: 680px;
   margin: .68rem 0 0;
-  font: 800 clamp(2.0rem, 5vw, 3.6rem)/1.12 var(--sans);  /* تم تقليل الحجم قليلاً */
+  font: 800 clamp(1.5rem, 3.5vw, 2.6rem)/1.12 var(--sans); /* تم تقليل الحجم */
   letter-spacing: -.062em;
 }
 .stage-intro {
@@ -347,7 +347,7 @@ img { max-width: 100%; }
   overflow: hidden;
   border: 1px solid rgba(220,234,224,.17);
   border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, rgba(24,40,36,.94), rgba(13,23,21,.96));
+  background: linear-gradient(145deg, rgba(11,31,58,.94), rgba(6,16,34,.96));
   box-shadow: 0 22px 70px rgba(0,0,0,.2);
   transition: border-color .18s var(--ease), box-shadow .18s var(--ease);
 }
@@ -457,7 +457,7 @@ img { max-width: 100%; }
   padding: clamp(1.05rem, 3vw, 1.75rem);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, rgba(18,33,29,.86), rgba(10,18,16,.92));
+  background: linear-gradient(145deg, rgba(11,31,58,.86), rgba(6,16,34,.92));
   box-shadow: 0 30px 95px rgba(0,0,0,.28);
   animation: enter .45s .08s var(--ease) both;
 }
@@ -978,7 +978,7 @@ img { max-width: 100%; }
   .rail-top strong { font-size: .74rem; }
   .rail-top span { font-size: .55rem; }
   .intent-stage h1 {
-    font-size: clamp(1.8rem, 8vw, 2.6rem);
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
   }
   .composer-footer { flex-wrap: wrap; }
   .composer-hint { order: 3; flex-basis: 100%; }

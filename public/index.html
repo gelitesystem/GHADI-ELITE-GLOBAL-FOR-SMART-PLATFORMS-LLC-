@@ -292,13 +292,16 @@
         border-color: var(--navy);
         background: #eaf1fb;
       }
-      .nav-pill.primary {
-        border-color: var(--navy);
-        background: var(--navy);
-        color: #fff;
-        box-shadow: 0 8px 18px rgba(6,28,67,.18);
-      }
-      .nav-pill.primary:hover { background: #0b2a5d; }
+.nav-pill.primary {
+  border-color: var(--navy-2);      /* #0b2a5d */
+  background: var(--navy-2);        /* #0b2a5d */
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(11,42,93,.25);
+}
+.nav-pill.primary:hover {
+  background: #10397a;              /* أغمق قليلاً للتمرير */
+  border-color: #10397a;
+}
       .nav-pill:active { transform: scale(.97); }
       .menu-toggle {
         display: none;
@@ -1393,4 +1396,5 @@
       })();
     </script>
   </body>
-</html>
+</html> 
+
