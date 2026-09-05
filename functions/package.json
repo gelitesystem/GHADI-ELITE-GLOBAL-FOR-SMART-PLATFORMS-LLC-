@@ -27,6 +27,7 @@
   },
   "allowScripts": {
     "@google/genai@2.19.0": true,
-    "@firebase/util@1.15.3": true
+    "@firebase/util@1.15.3": true,
+    "protobufjs@7.6.6": true
   }
 }
