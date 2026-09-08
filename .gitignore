@@ -77,3 +77,7 @@ GHADI_FOUNDATION_STATUS.md
 public/image/about_us_video.mp4
 public/image/ghadi-ai-company-film.mp4
 public/image/icon_semiconductor_ai_research.mp4
+node_modules/
+node_modules/
+*.mp4
+*.webm
