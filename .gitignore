@@ -81,3 +81,6 @@ node_modules/
 node_modules/
 *.mp4
 *.webm
+*.mp4
+*.webm
+node_modules/
