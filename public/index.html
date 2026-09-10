@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<!-- GHADI ELITE GLOBAL FOR SMART PLATFORMS — Unified Official Website v4.2
+<!-- GHADI ELITE GLOBAL FOR SMART PLATFORMS — Unified Official Website v4.3
+     v4.3 — Enlarged brand logo to fill header safely (48px desktop · 42px mobile)
+     by switching to height-based sizing with max-width safety caps.
      v4.2 — Reduced header height (60px desktop · 52px mobile), removed duplicated
      safe-area padding, added scroll-padding-top, tightened logo/menu/hero offsets.
      New license activities (Shams Media City UAE) · 15 activity videos + About Us + GHADI AI + 2 SUN videos
@@ -370,16 +372,20 @@
         .brand {
             display: inline-flex;
             align-items: center;
-            gap: .6rem;
+            gap: .65rem;
             min-width: max-content;
             color: var(--navy);
             text-decoration: none;
             flex-shrink: 0;
         }
+        /* ✅ Height-driven logo sizing: fills header safely without stretching it.
+           Desktop: 48px (header 60px - 12px breathing room)
+           Mobile:  42px (header 52px - 10px breathing room) */
         .brand img {
-            width: clamp(54px, 15vw, 118px);
-            height: auto;
-            max-height: calc(var(--header-h) - .6rem);
+            display: block;
+            height: calc(var(--header-h) - .75rem);
+            width: auto;
+            max-width: clamp(140px, 20vw, 210px);
             object-fit: contain;
         }
         .brand-copy {
@@ -388,7 +394,7 @@
             line-height: 1;
         }
         .brand-copy strong {
-            font: 800 .78rem/1 Manrope, sans-serif;
+            font: 800 .82rem/1 Manrope, sans-serif;
             letter-spacing: .07em;
         }
         .brand-copy span {
@@ -1396,12 +1402,14 @@
                 min-height: var(--header-h-mobile);
                 padding-block: calc(.25rem + env(safe-area-inset-top, 0px)) .25rem;
             }
+            /* ✅ Mobile: logo fills nearly the full header content height (~42px)
+               with a horizontal cap to leave room for the hamburger button */
             .brand img {
-                width: 78px;
-                max-height: calc(var(--header-h-mobile) - .5rem);
+                height: calc(var(--header-h-mobile) - .65rem);
+                max-width: 140px;
             }
             .brand-copy strong {
-                font-size: .72rem;
+                font-size: .74rem;
             }
             .desktop-nav {
                 display: none;
@@ -1548,7 +1556,7 @@
     <header class="site-header" id="top" role="banner">
         <div class="shell header-inner">
             <a class="brand" href="/" aria-label="GHADI ELITE GLOBAL home">
-                <img src="image/g_elite_g-logo_final.png" alt="G-ELITE-G logo" width="110" height="auto" style="height:auto" />
+                <img src="image/g_elite_g-logo_final.png" alt="G-ELITE-G logo" width="200" height="48" />
                 <span class="brand-copy"><strong>GHADI ELITE GLOBAL</strong></span>
             </a>
             <nav class="desktop-nav" aria-label="Primary navigation">
