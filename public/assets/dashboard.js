@@ -1,470 +1,680 @@
-/* GHADI AI Workspace — Quiet Command Surface: client describes and renders state; the server owns execution and external decisions. */
 "use strict";
 
+/* ============================================================
+   GHADI AI — Commercial Operating System
+   dashboard.js
+   Backend: Firebase Functions (ghadiApi) via Hosting rewrites
+   ============================================================ */
+
 const CONFIG = Object.freeze({
-  api: "/api",
-  timeout: 18000,
-  maxFile: 25 * 1024 * 1024,
-  exportName: "ghadi-ai-workspace-snapshot",
+  apiBase: "/api",
+  requestTimeout: 18000,
+  healthTimeout: 8000,
+  uploadTimeout: 60000,
+  healthInterval: 30000,
+  maxFileSize: 25 * 1024 * 1024,
+  maxToasts: 3,
+  toastTtlMs: 4400,
+  maxEvents: 60,
   locale: document.documentElement.lang || "en",
+  routes: Object.freeze(["overview","work","crm","marketing","events","trade","compliance","audit"])
 });
 
 const state = {
-  sessionId: crypto.randomUUID?.() || `session_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+  clientTraceId: (crypto.randomUUID?.() ?? `trace_${Date.now()}`),
   online: false,
   submitting: false,
-  workspace: { id: "", title: "Untitled workspace", owned: false },
-  run: null,
+  workspace: Object.freeze({ id: "ghadi-elite-global", label: "GHADI Elite Global" }),
   attachments: [],
   events: [],
-  approval: null,
+  metrics: null,
+  workItems: null,
+  activeView: "overview"
 };
 
 const dom = {};
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => [...document.querySelectorAll(selector)];
-const clean = (value, fallback = "") => String(value ?? "").trim() || fallback;
-const stamp = () => new Intl.DateTimeFormat(CONFIG.locale, { hour: "2-digit", minute: "2-digit" }).format(new Date());
-const bytes = (value) => `${new Intl.NumberFormat(CONFIG.locale, { maximumFractionDigits: 1 }).format(Number(value || 0) / 1024 / 1024)} MB`;
+const controllers = { page: new AbortController(), uploads: new Map() };
 
-function toast(message, tone = "neutral") {
-  const node = document.createElement("div");
-  node.className = `toast ${tone}`;
-  node.textContent = message;
-  dom.toastRegion.append(node);
-  window.setTimeout(() => node.remove(), 4400);
-}
+/* ---------- Utils ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clean = (v, fb = "") => v == null ? fb : (String(v).trim() || fb);
 
-function kind(status) {
-  const normalized = clean(status, "pending").toLowerCase();
-  if (["completed", "complete", "ready", "succeeded", "success"].includes(normalized)) return "complete";
-  if (["awaiting_approval", "blocked", "waiting", "requires_approval"].includes(normalized)) return "blocked";
-  if (["failed", "error", "cancelled"].includes(normalized)) return "failed";
-  return "running";
-}
+const numFmt  = new Intl.NumberFormat(CONFIG.locale);
+const timeFmt = new Intl.DateTimeFormat(CONFIG.locale, { hour: "2-digit", minute: "2-digit" });
+const dateFmt = new Intl.DateTimeFormat(CONFIG.locale, { day: "2-digit", month: "short", year: "numeric" });
 
-function label(status) {
-  return ({ complete: "Ready for review", blocked: "Decision required", failed: "Not completed", running: "In progress" })[kind(status)] || "In progress";
-}
-
-async function api(path, options = {}) {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), CONFIG.timeout);
-  try {
-    const response = await fetch(`${CONFIG.api}${path}`, { ...options, signal: controller.signal });
-    const contentType = response.headers.get("content-type") || "";
-    const payload = contentType.includes("application/json") ? await response.json() : await response.text();
-    if (!response.ok || (payload && typeof payload === "object" && payload.success === false)) {
-      const message = typeof payload === "object" ? payload?.error?.message || payload?.error?.symbol || payload?.message : payload;
-      throw new Error(message || `HTTP ${response.status}`);
-    }
-    return payload;
-  } finally {
-    window.clearTimeout(timeout);
-  }
-}
-
-function recordEvent(title, detail, tone = "neutral") {
-  state.events.unshift({ title: clean(title), detail: clean(detail), tone, at: stamp() });
-  dom.railTrace.textContent = clean(detail, "No trace recorded in this session.");
-  renderEvents();
-}
-
-// دالة مساعدة لتحديث النصوص بأمان دون الحاجة لفحص كل عنصر يدويًا
-const setText = (element, value) => {
-  if (element) element.textContent = value;
+const fmtInt  = (n) => Number.isFinite(n) ? numFmt.format(n) : "—";
+const fmtTime = () => timeFmt.format(new Date());
+const fmtDate = (d) => {
+  const dt = d instanceof Date ? d : new Date(d);
+  return Number.isNaN(dt.getTime()) ? "—" : dateFmt.format(dt);
 };
+const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
 
-function renderWorkspace() {
-  setText(dom.projectLabel, state.workspace.title);
-  setText(dom.factProject, state.workspace.title);
-  setText(dom.ownershipLabel, state.workspace.owned ? "Owned project" : "Local session");
-  setText(dom.factOwnership, state.workspace.owned ? "Server-confirmed ownership" : "Local session — identity is not enabled");
-  setText(dom.factConnection, state.online ? "GHADI API connected" : "No confirmed server connection");
-}
-
-
-
-function setOnline(online) {
-  state.online = online;
-  dom.connectionDot.className = `connection-dot ${online ? "online" : "offline"}`;
-  dom.connectionLabel.textContent = online ? "Connected" : "Offline";
-  renderWorkspace();
-}
-
-async function health() {
-  dom.connectionLabel.textContent = "Checking";
-  try {
-    const payload = await api("/health", { headers: { Accept: "application/json" } });
-    const data = payload?.data || payload || {};
-    setOnline(data.engine === "healthy" || data.status === "healthy");
-  } catch {
-    setOnline(false);
+/* ---------- DOM builders (XSS-safe) ---------- */
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (value == null || value === false) continue;
+    if (key === "class") node.className = value;
+    else if (key === "text") node.textContent = String(value);
+    else if (key === "dataset") Object.assign(node.dataset, value);
+    else if (key === "attrs") for (const [a, av] of Object.entries(value)) {
+      if (av != null && av !== false) node.setAttribute(a, av);
+    }
+    else if (key === "style" && typeof value === "object") Object.assign(node.style, value);
+    else if (key === "on" && typeof value === "object") {
+      for (const [evt, fn] of Object.entries(value)) node.addEventListener(evt, fn);
+    }
+    else node[key] = value;
   }
-}
-
-function submitState(submitting) {
-  state.submitting = submitting;
-  dom.submitBtn.disabled = submitting;
-  dom.intentInput.disabled = submitting;
-  dom.submitLabel.textContent = submitting ? "Registering" : "Start work";
-  dom.composerHint.textContent = submitting
-    ? "Waiting for the server to confirm a run."
-    : "Image or PDF, up to 25 MB. A file becomes working context only after server confirmation.";
-}
-
-function surface(status, message) {
-  dom.resultSurface.className = `result-surface state-${status}`;
-  dom.runState.className = `state-chip ${status}`;
-  dom.runState.textContent = message;
-}
-
-function renderPath(status) {
-  const step = kind(status);
-  const items = $$(".execution-path li");
-  items.forEach((item, index) => {
-    item.classList.remove("path-active", "path-complete");
-    if (step === "complete" && index < 2) item.classList.add("path-complete");
-    if (step === "blocked" && index === 2) item.classList.add("path-active");
-    if (step === "failed" && index === 1) item.classList.add("path-active");
-    if (step === "running" && index === 0) item.classList.add("path-active");
-    if (step === "complete" && index === 1) item.classList.add("path-active");
-  });
-}
-
-function normalize(payload, intent) {
-  if (!payload || typeof payload !== "object") throw new Error("The server response was not JSON.");
-  const data = payload?.data || payload || {};
-  const id = data.id || data.runId || data.executionId || "";
-  if (!id) throw new Error("The server response did not include a run identifier.");
-  return {
-    id,
-    status: data.status || "running",
-    summary: data.result || data.summary || data.message || data.requestSummary || intent,
-    output: data.modelOutput || data.output || data.artifact?.content || "",
-    type: data.outputType || data.artifact?.type || data.kind || "Run",
-    plan: data.plan || data.steps,
-    approval: data.approval || data.pendingApproval,
-    project: data.project || null,
-  };
-}
-
-function showRun(run) {
-  state.run = run;
-  if (run.project?.id) {
-    state.workspace = { id: run.project.id, title: clean(run.project.title, state.workspace.title), owned: true };
-    renderWorkspace();
+  for (const child of [].concat(children)) {
+    if (child == null || child === false) continue;
+    node.append(child instanceof Node ? child : document.createTextNode(String(child)));
   }
-  const currentKind = kind(run.status);
-  dom.emptyResult.hidden = true;
-  dom.runResult.hidden = false;
-  dom.resultType.textContent = clean(run.type, "Run");
-  dom.runTime.textContent = stamp();
-  dom.runTitle.textContent = currentKind === "complete" ? "The outcome is ready for review" : currentKind === "blocked" ? "GHADI AI is waiting for a decision" : currentKind === "failed" ? "The run did not complete" : "Turning the outcome into reviewable work";
-  dom.runSummary.textContent = clean(run.summary, "The server returned a reviewable run state.");
-  dom.resultEvidence.textContent = run.id ? `Recorded run: ${run.id}` : "Server response without a run identifier";
-  dom.railStatus.textContent = label(run.status);
-  surface(currentKind, label(run.status));
-  renderPath(run.status);
-  renderOutput(run.output);
-  renderPlan(run.plan, currentKind);
-  renderApproval(run);
-  recordEvent("Run update", currentKind === "blocked" ? "The server returned a protected decision point before any effect." : "The server returned a state that can be reviewed.", currentKind);
-}
-
-function renderOutput(value) {
-  const output = clean(value);
-  dom.primaryOutput.hidden = !output;
-  if (output) dom.outputText.querySelector("code").textContent = output;
-}
-
-function empty(title, detail) {
-  const node = document.createElement("div");
-  const strong = document.createElement("strong");
-  const paragraph = document.createElement("p");
-  node.className = "empty-list";
-  strong.textContent = title;
-  paragraph.textContent = detail;
-  node.append(strong, paragraph);
   return node;
 }
 
-function renderPlan(plan, currentStatus) {
-  dom.planList.replaceChildren();
-  const steps = Array.isArray(plan) && plan.length
-    ? plan
-    : [{ title: currentStatus === "running" ? "Waiting for a server update" : "No confirmed plan", description: currentStatus === "running" ? "GHADI AI shows work details when the server provides them." : "Only server-confirmed steps appear here." }];
-  steps.forEach((step) => {
-    const row = document.createElement("article");
-    const dot = document.createElement("i");
-    const content = document.createElement("div");
-    const strong = document.createElement("strong");
-    const paragraph = document.createElement("p");
-    row.className = "plan-row";
-    dot.className = `plan-dot ${kind(step.status || currentStatus)}`;
-    strong.textContent = clean(step.title || step.id, "Work step");
-    paragraph.textContent = clean(step.description || step.detail, "No additional description.");
-    content.append(strong, paragraph);
-    row.append(dot, content);
-    dom.planList.append(row);
-  });
+function frag(children) {
+  const f = document.createDocumentFragment();
+  for (const c of children) if (c) f.append(c);
+  return f;
 }
 
-function renderApproval(run) {
-  state.approval = run.approval || (run.status === "awaiting_approval" ? { title: "External effect requires a decision", description: run.summary } : null);
-  dom.approvalCard.hidden = !state.approval;
-  if (state.approval) {
-    dom.approvalTitle.textContent = clean(state.approval.title || state.approval.action, "Proposed external effect");
-    dom.approvalDescription.textContent = clean(state.approval.description || state.approval.summary, "Review the details of this effect before approval.");
+const clear = (node) => { if (node) node.replaceChildren(); };
+
+/* ---------- Toasts ---------- */
+const toastState = { list: [] };
+
+function toast(message, tone = "neutral", ttl = CONFIG.toastTtlMs) {
+  const text = clean(message);
+  if (!text || !dom.toasts) return;
+  const now = Date.now();
+  if (toastState.list.some(t => t.text === text && t.tone === tone && now - t.at < 2000)) return;
+
+  const node = el("div", { class: `toast is-${tone}`, text });
+  dom.toasts.append(node);
+
+  const entry = { text, tone, at: now, node };
+  toastState.list.push(entry);
+  while (toastState.list.length > CONFIG.maxToasts) toastState.list.shift()?.node.remove();
+
+  setTimeout(() => {
+    const i = toastState.list.indexOf(entry);
+    if (i >= 0) toastState.list.splice(i, 1);
+    node.remove();
+  }, ttl);
+}
+
+/* ---------- API client ---------- */
+class ApiError extends Error {
+  constructor(message, opts = {}) {
+    super(message);
+    this.name = "ApiError";
+    this.status = opts.status;
+    this.code = opts.code;
+    this.detail = opts.detail;
   }
 }
 
-function openApproval() {
-  if (!state.approval) return;
-  dom.approvalFacts.replaceChildren();
-  [["Action", state.approval.title || state.approval.action || "Not specified"], ["Description", state.approval.description || state.approval.summary || "Not available"], ["State", state.approval.status || "Waiting for a decision"], ["Identifier", state.approval.id || "Not enabled"]].forEach(([term, value]) => {
-    const row = document.createElement("div");
-    const labelNode = document.createElement("small");
-    const valueNode = document.createElement("strong");
-    labelNode.textContent = term;
-    valueNode.textContent = clean(value);
-    row.append(labelNode, valueNode);
-    dom.approvalFacts.append(row);
-  });
-  if (!dom.approvalModal.open) dom.approvalModal.showModal();
-}
-
-function renderFiles() {
-  dom.attachmentShelf.replaceChildren();
-  dom.fileList.replaceChildren();
-  if (!state.attachments.length) {
-    dom.attachmentShelf.hidden = true;
-    dom.fileList.append(empty("No files", "Attach an image or PDF to see its acceptance state here."));
-    return;
+async function api(path, { method = "GET", headers = {}, body, signal, timeout = CONFIG.requestTimeout } = {}) {
+  const ctrl = new AbortController();
+  const onAbort = () => ctrl.abort(signal?.reason);
+  if (signal) {
+    if (signal.aborted) ctrl.abort(signal.reason);
+    else signal.addEventListener("abort", onAbort, { once: true });
   }
-  dom.attachmentShelf.hidden = false;
-  state.attachments.forEach((attachment) => {
-    const chip = document.createElement("div");
-    const dot = document.createElement("i");
-    const name = document.createElement("span");
-    chip.className = `attachment-chip ${attachment.status === "failed" ? "failed" : ""}`;
-    name.textContent = `${attachment.file.name} · ${attachment.label}`;
-    chip.append(dot, name);
-    dom.attachmentShelf.append(chip);
+  const timer = setTimeout(() => ctrl.abort(new DOMException("Timeout", "TimeoutError")), timeout);
 
-    const row = document.createElement("article");
-    const info = document.createElement("div");
-    const title = document.createElement("strong");
-    const meta = document.createElement("p");
-    const status = document.createElement("span");
-    row.className = "file-row";
-    title.textContent = attachment.file.name;
-    meta.textContent = `${attachment.file.type || "application/octet-stream"} · ${bytes(attachment.file.size)}`;
-    status.className = `file-status ${attachment.status === "failed" ? "failed" : ""}`;
-    status.textContent = attachment.label;
-    info.append(title, meta);
-    row.append(info, status);
-    dom.fileList.append(row);
-  });
-}
+  try {
+    const res = await fetch(`${CONFIG.apiBase}${path}`, {
+      method,
+      headers: { Accept: "application/json", ...headers },
+      body,
+      credentials: "same-origin",
+      cache: "no-store",
+      signal: ctrl.signal
+    });
 
-function renderEvents() {
-  dom.eventList.replaceChildren();
-  if (!state.events.length) {
-    dom.eventList.append(empty("No activity yet", "GHADI AI records events the client proves or the server returns."));
-    return;
+    const type = res.headers.get("content-type") || "";
+    const payload = type.includes("json") ? await res.json().catch(() => null) : await res.text();
+
+    if (!res.ok) {
+      const msg = payload && typeof payload === "object"
+        ? payload.error?.message || payload.message || `HTTP ${res.status}`
+        : String(payload || `HTTP ${res.status}`);
+      throw new ApiError(msg, { status: res.status, code: payload?.error?.code, detail: payload });
+    }
+    if (payload && typeof payload === "object" && payload.success === false) {
+      throw new ApiError(payload.error?.message || payload.message || "Request failed", {
+        code: payload.error?.code, detail: payload
+      });
+    }
+    return payload;
+  } finally {
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener("abort", onAbort);
   }
-  state.events.forEach((activity) => {
-    const row = document.createElement("article");
-    const strong = document.createElement("strong");
-    const paragraph = document.createElement("p");
-    const time = document.createElement("span");
-    row.className = "event-row";
-    strong.textContent = activity.title;
-    paragraph.textContent = activity.detail;
-    time.className = "event-time";
-    time.textContent = activity.at;
-    row.append(strong, paragraph, time);
-    dom.eventList.append(row);
-  });
 }
 
-function allowedFile(file) {
+/* ---------- Event log ---------- */
+function log(title, detail = "") {
+  state.events.unshift({ title: clean(title), detail: clean(detail), at: fmtTime() });
+  if (state.events.length > CONFIG.maxEvents) state.events.length = CONFIG.maxEvents;
+}
+
+/* ---------- Connection / health ---------- */
+function setConnection(kind, label) {
+  state.online = kind === "online";
+  if (dom.connectionDot) dom.connectionDot.className = `connection__dot is-${kind}`;
+  if (dom.connectionLabel) dom.connectionLabel.textContent = label ?? (
+    kind === "online" ? "Connected" : kind === "offline" ? "Offline" : "Checking…"
+  );
+}
+
+async function health() {
+  if (!navigator.onLine) { setConnection("offline", "Device offline"); return; }
+  setConnection("checking");
+  try {
+    const p = await api("/health", { timeout: CONFIG.healthTimeout });
+    const d = p?.data || p || {};
+    const ok = d.ok === true || d.status === "healthy" || d.engine === "healthy";
+    setConnection(ok ? "online" : "offline", ok ? "Connected" : "Degraded");
+  } catch (err) {
+    if (err.name === "TimeoutError" || err.name === "AbortError") setConnection("offline", "Timeout");
+    else setConnection("offline", "Unavailable");
+  }
+}
+
+function startHealthMonitor() {
+  health();
+  setInterval(() => { if (!document.hidden) health(); }, CONFIG.healthInterval);
+  const s = controllers.page.signal;
+  window.addEventListener("online", health, { signal: s });
+  window.addEventListener("offline", () => setConnection("offline", "Device offline"), { signal: s });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) health(); }, { signal: s });
+}
+
+/* ---------- Dialog ---------- */
+function openDialog({ title, eyebrow = "", body }) {
+  if (!dom.dialog) return;
+  if (dom.dialogTitle) dom.dialogTitle.textContent = clean(title);
+  if (dom.dialogEyebrow) dom.dialogEyebrow.textContent = clean(eyebrow);
+  clear(dom.dialogBody);
+  if (body instanceof Node) dom.dialogBody.append(body);
+  else if (Array.isArray(body)) dom.dialogBody.append(...body.filter(Boolean));
+  if (!dom.dialog.open) dom.dialog.showModal();
+}
+
+function closeDialog() { if (dom.dialog?.open) dom.dialog.close(); }
+
+/* ---------- View fragments ---------- */
+function factsGrid(items) {
+  return el("div", { class: "facts" }, items.map(({ label, value }) =>
+    el("div", { class: "fact" }, [
+      el("span", { text: clean(label) }),
+      el("b", { text: clean(value, "—") })
+    ])
+  ));
+}
+
+function listBlock(items) {
+  return el("div", { class: "list" }, items.map(({ title, detail }) =>
+    el("div", { class: "list-item" }, [
+      el("b", { text: clean(title) }),
+      detail ? el("small", { text: clean(detail) }) : null
+    ])
+  ));
+}
+
+function emptyState({ title, hint }) {
+  return el("div", { class: "empty-state" }, [
+    el("strong", { text: clean(title) }),
+    hint ? el("small", { text: clean(hint) }) : null
+  ]);
+}
+
+const VIEW_META = Object.freeze({
+  overview:   { title: "Overview",   subtitle: "" },
+  work:       { title: "Work Queue", subtitle: "" },
+  crm:        { title: "CRM",        subtitle: "" },
+  marketing:  { title: "Marketing",  subtitle: "" },
+  events:     { title: "Events",     subtitle: "" },
+  trade:      { title: "Trade",      subtitle: "" },
+  compliance: { title: "Compliance", subtitle: "" },
+  audit:      { title: "Audit",      subtitle: "" }
+});
+
+/* ---------- Router ---------- */
+function parseRoute() {
+  const h = location.hash.replace(/^#\/?/, "");
+  return CONFIG.routes.includes(h) ? h : "overview";
+}
+
+function navigate(view) {
+  if (!CONFIG.routes.includes(view)) return;
+  if (parseRoute() === view) handleRoute();
+  else location.hash = view;
+}
+
+function updateNav(view) {
+  for (const link of dom.navLinks || []) {
+    const on = link.dataset.view === view;
+    link.classList.toggle("is-active", on);
+    if (on) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
+}
+
+async function handleRoute() {
+  const view = parseRoute();
+  state.activeView = view;
+  const meta = VIEW_META[view];
+  if (dom.viewTitle) dom.viewTitle.textContent = meta.title;
+  if (dom.viewSubtitle) dom.viewSubtitle.textContent = meta.subtitle || "";
+  document.title = `GHADI — ${meta.title}`;
+  updateNav(view);
+
+  for (const panel of $$("[data-view-panel]", dom.viewRoot)) {
+    panel.hidden = panel.dataset.viewPanel !== view;
+  }
+
+  if (view === "work") await loadWorkQueue();
+  if (view === "audit") renderAuditPanel();
+}
+
+/* ---------- Metrics ---------- */
+async function loadMetrics() {
+  const cells = $$("[data-metric]", dom.viewRoot);
+  cells.forEach(c => { c.textContent = "…"; });
+
+  try {
+    const p = await api("/metrics");
+    const d = p?.data || p || {};
+    const map = {
+      opportunities: d.openOpportunities ?? d.opportunities,
+      campaigns:     d.activeCampaigns  ?? d.campaigns,
+      events:        d.upcomingEvents   ?? d.events,
+      pending:       d.pendingDecisions ?? d.pending
+    };
+    for (const c of cells) c.textContent = fmtInt(map[c.dataset.metric]);
+    state.metrics = map;
+  } catch (err) {
+    cells.forEach(c => { c.textContent = "—"; });
+    log("Metrics unavailable", err.message);
+  }
+}
+
+/* ---------- Work queue ---------- */
+async function loadWorkQueue() {
+  const tbody = dom.workqueueBody;
+  if (!tbody) return;
+  clear(tbody);
+  tbody.append(el("tr", {}, [el("td", { attrs: { colspan: "6" }, class: "muted", text: "Loading…" })]));
+
+  try {
+    const p = await api("/work-items");
+    const list = Array.isArray(p) ? p
+      : Array.isArray(p?.data)  ? p.data
+      : Array.isArray(p?.items) ? p.items : [];
+
+    clear(tbody);
+
+    if (!list.length) {
+      tbody.append(el("tr", {}, [
+        el("td", { attrs: { colspan: "6" } },
+          [emptyState({ title: "No work items", hint: "Server returned an empty list." })])
+      ]));
+      return;
+    }
+
+    for (const item of list) {
+      tbody.append(el("tr", { dataset: { id: clean(item.id) } }, [
+        el("td", { text: clean(item.title, "—") }),
+        el("td", { text: clean(item.domain, "—") }),
+        el("td", { text: clean(item.owner, "—") }),
+        el("td", {}, [statusBadge(item.status)]),
+        el("td", {}, [el("time", { text: formatUpdated(item.updatedAt) })]),
+        el("td", { class: "table__action-col" }, [
+          el("button", {
+            class: "btn btn--sm",
+            type: "button",
+            dataset: { action: "open", id: clean(item.id) },
+            text: "Open"
+          })
+        ])
+      ]));
+    }
+    state.workItems = list;
+  } catch (err) {
+    clear(tbody);
+    tbody.append(el("tr", {}, [
+      el("td", { attrs: { colspan: "6" } },
+        [emptyState({ title: "Unable to load work items", hint: err.message })])
+    ]));
+  }
+}
+
+function statusBadge(status) {
+  const s = clean(status).toLowerCase();
+  const map = {
+    "review required": { cls: "is-warn",   label: "Review required" },
+    "in progress":     { cls: "is-ok",     label: "In progress" },
+    "open":            { cls: "is-ok",     label: "Open" },
+    "blocked":         { cls: "is-danger", label: "Blocked" },
+    "done":            { cls: "is-ok",     label: "Done" }
+  };
+  const cfg = map[s] || { cls: "", label: clean(status, "—") };
+  return el("span", { class: `badge ${cfg.cls}`.trim(), text: cfg.label });
+}
+
+function formatUpdated(v) {
+  if (!v) return "—";
+  const d = typeof v?.toDate === "function" ? v.toDate() : new Date(v);
+  if (Number.isNaN(d.getTime())) return "—";
+  const diff = Date.now() - d.getTime();
+  if (diff < 60_000) return "Just now";
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
+  return fmtDate(d);
+}
+
+/* ---------- Audit panel ---------- */
+function renderAuditPanel() {
+  let panel = $('[data-view-panel="audit"]', dom.viewRoot);
+  if (!panel) {
+    panel = el("section", { class: "view", dataset: { viewPanel: "audit" } });
+    dom.viewRoot.append(panel);
+  }
+  clear(panel);
+
+  const items = state.events.length
+    ? state.events.map(e => ({ title: e.title, detail: `${e.detail} · ${e.at}` }))
+    : [{ title: "No activity", detail: "Session events will appear here." }];
+
+  panel.append(
+    el("section", { class: "card" }, [
+      el("header", { class: "section__head" }, [el("h2", { text: "Session activity" })]),
+      listBlock(items)
+    ])
+  );
+}
+
+/* ---------- Submit ---------- */
+function setSubmitting(busy) {
+  state.submitting = busy;
+  if (dom.submitBtn) {
+    dom.submitBtn.disabled = busy;
+    dom.submitBtn.setAttribute("aria-busy", String(busy));
+  }
+  if (dom.submitLabel) dom.submitLabel.textContent = busy ? "Planning…" : "Plan Work";
+}
+
+async function submit(intent) {
+  if (state.submitting) return;
+  const text = clean(intent);
+  if (!text) { toast("Describe the work first.", "warning"); return; }
+
+  setSubmitting(true);
+  let succeeded = false;
+
+  try {
+    const ready = state.attachments.filter(a => a.status === "uploaded");
+    const res = await api("/submit", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        request: text,
+        locale: CONFIG.locale,
+        projectId: state.workspace.id,
+        clientTraceId: state.clientTraceId,
+        attachmentIds: ready.map(a => a.id).filter(Boolean),
+        idempotencyKey: `${state.clientTraceId}:${Date.now()}`
+      })
+    });
+
+    const run = normalizeRun(res, text);
+    renderRun(run);
+    succeeded = true;
+  } catch (err) {
+    log("Submit failed", err.message);
+    toast(`Submit failed: ${err.message}`, "error");
+    openDialog({
+      title: "Submit not confirmed",
+      eyebrow: "Server",
+      body: frag([
+        el("p", { class: "muted", text: "The browser did not perform any external effect. Your text has been preserved." }),
+        factsGrid([{ label: "Error", value: err.message }])
+      ])
+    });
+  } finally {
+    setSubmitting(false);
+    if (succeeded && dom.intentInput) dom.intentInput.value = "";
+  }
+}
+
+function normalizeRun(payload, fallbackSummary) {
+  const d = payload?.data || payload;
+  if (!d || typeof d !== "object") throw new ApiError("Malformed server response.");
+  const id = clean(d.id || d.runId || d.executionId);
+  if (!id) throw new ApiError("Response is missing a run identifier.");
+  return {
+    id,
+    status:   clean(d.status, "running"),
+    summary:  clean(d.result || d.summary || d.message, fallbackSummary),
+    plan:     Array.isArray(d.plan) ? d.plan : Array.isArray(d.steps) ? d.steps : [],
+    approval: d.approval || d.pendingApproval || null,
+    type:     clean(d.outputType || d.artifact?.type, "Run")
+  };
+}
+
+function renderRun(run) {
+  const needsApproval = Boolean(run.approval) || run.status === "awaiting_approval";
+  const plan = run.plan.length ? run.plan : [];
+
+  const body = frag([
+    el("p", { text: clean(run.summary) }),
+    factsGrid([
+      { label: "Run ID", value: run.id },
+      { label: "Status", value: run.status },
+      { label: "Type",   value: run.type }
+    ]),
+    plan.length ? el("h3", { text: "Workflow", style: { marginTop: "1.25rem" } }) : null,
+    plan.length ? listBlock(plan.map((s, i) => ({
+      title:  `${i + 1}. ${clean(s.title || s.id, "Step")}`,
+      detail: clean(s.description || s.detail)
+    }))) : null
+  ]);
+
+  openDialog({
+    title:   needsApproval ? "Decision required" : "Work plan",
+    eyebrow: needsApproval ? "Protected" : "Result",
+    body
+  });
+  log("Run received", run.id);
+}
+
+/* ---------- Attachments ---------- */
+function attachmentAllowed(file) {
   return file?.type?.startsWith("image/") || file?.type === "application/pdf";
 }
 
+function renderAttachments() {
+  if (!dom.attachmentShelf) return;
+  clear(dom.attachmentShelf);
+  if (!state.attachments.length) { dom.attachmentShelf.hidden = true; return; }
+  dom.attachmentShelf.hidden = false;
+  for (const a of state.attachments) {
+    dom.attachmentShelf.append(
+      el("span", { class: a.status === "failed" ? "is-failed" : "", text: `${a.file.name} · ${a.label}` })
+    );
+  }
+}
+
 async function upload(file) {
-  if (!allowedFile(file)) throw new Error("Only images and PDF files are allowed.");
-  if (file.size > CONFIG.maxFile) throw new Error("The file is larger than 25 MB.");
-  const attachment = { file, status: "uploading", label: "Attaching", id: "", url: "" };
-  state.attachments.push(attachment);
-  renderFiles();
-  recordEvent("Context added", `Sending ${file.name} to the server.`, "running");
+  if (!attachmentAllowed(file)) throw new Error("Only images and PDFs are allowed.");
+  if (file.size > CONFIG.maxFileSize) throw new Error("File exceeds 25 MB.");
+
+  const entry = { file, status: "uploading", label: "Uploading", id: "" };
+  state.attachments.push(entry);
+  renderAttachments();
+
+  const ctrl = new AbortController();
+  controllers.uploads.set(entry, ctrl);
+
   try {
-    const payload = await api("/attachments", {
+    const res = await api("/attachments", {
       method: "POST",
       headers: {
         "content-type": "application/octet-stream",
         "x-file-name": encodeURIComponent(file.name),
-        "x-session-id": state.sessionId,
-        "x-project-id": state.workspace.id || "session-pending",
+        "x-client-trace": state.clientTraceId
       },
       body: file,
+      signal: ctrl.signal,
+      timeout: CONFIG.uploadTimeout
     });
-    const data = payload?.data || payload || {};
-    if (!data || typeof data !== "object") throw new Error("The server response was not JSON.");
-    if (!(data.id || data.attachmentId || data.url || data.downloadUrl || data.downloadURL || data.publicUrl)) {
-      throw new Error("The server response did not confirm an attachment identifier or reference.");
-    }
-    attachment.id = clean(data.id || data.attachmentId);
-    attachment.url = clean(data.url || data.downloadUrl || data.downloadURL || data.publicUrl);
-    attachment.status = "uploaded";
-    attachment.label = "Server confirmed";
-    recordEvent("File confirmed", `${file.name} is available for a run.`, "complete");
-  } catch (error) {
-    attachment.status = "failed";
-    attachment.label = "Not confirmed by server";
-    recordEvent("File could not be saved", `${file.name}: ${error.message}`, "failed");
-    toast("The file is visible in this session, but server storage did not confirm it.", "warning");
-  }
-  renderFiles();
-}
-
-async function submit(intent) {
-  submitState(true);
-  surface("running", "In progress");
-  renderPath("running");
-  dom.emptyResult.hidden = true;
-  dom.runResult.hidden = false;
-  dom.resultType.textContent = "Outcome";
-  dom.runTime.textContent = stamp();
-  dom.runTitle.textContent = "Registering the outcome";
-  dom.runSummary.textContent = "Waiting for GHADI API to confirm a run.";
-  dom.primaryOutput.hidden = true;
-  dom.approvalCard.hidden = true;
-  dom.resultEvidence.textContent = "Waiting for GHADI API";
-  recordEvent("Outcome submitted", "The interface sent the request to the relative /api route.", "running");
-  try {
-    const uploaded = state.attachments.filter((attachment) => attachment.status === "uploaded");
-    const payload = await api("/submit", {
-      method: "POST",
-      headers: { "content-type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        request: intent,
-        locale: CONFIG.locale,
-        projectId: state.workspace.id || "session-pending",
-        sessionId: state.sessionId,
-        attachmentIds: uploaded.filter((attachment) => attachment.id).map((attachment) => attachment.id),
-        attachmentRefs: uploaded.filter((attachment) => attachment.url).map((attachment) => ({ name: attachment.file.name, url: attachment.url })),
-        idempotencyKey: `${state.sessionId}:${Date.now()}`,
-      }),
-    });
-    showRun(normalize(payload, intent));
-  } catch (error) {
-    surface("failed", "Not completed");
-    renderPath("failed");
-    dom.runTitle.textContent = "The server did not confirm the run";
-    dom.runSummary.textContent = `GHADI API did not return a recorded run: ${error.message}`;
-    dom.resultEvidence.textContent = "No server-confirmed result";
-    recordEvent("Run could not be created", error.message, "failed");
-    toast("No server run was created. The interface did not perform an external effect.", "error");
+    const d = res?.data || res || {};
+    const id = clean(d.id || d.attachmentId);
+    if (!id) throw new Error("Server did not confirm the attachment.");
+    entry.id = id;
+    entry.status = "uploaded";
+    entry.label = "Ready";
+    log("File uploaded", file.name);
+  } catch (err) {
+    entry.status = "failed";
+    entry.label = err.name === "AbortError" ? "Cancelled" : "Failed";
+    if (err.name !== "AbortError") toast(`${file.name}: ${err.message}`, "warning");
   } finally {
-    submitState(false);
+    controllers.uploads.delete(entry);
+    renderAttachments();
   }
 }
 
-function detail(name) {
-  $$(".inspector-tab").forEach((button) => {
-    const active = button.dataset.detail === name;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-selected", String(active));
+/* ---------- Context dialog ---------- */
+function showContext() {
+  openDialog({
+    title: "Context",
+    eyebrow: "Workspace",
+    body: factsGrid([
+      { label: "Workspace",    value: state.workspace.label },
+      { label: "Connection",   value: state.online ? "Connected" : "Offline" },
+      { label: "Client trace", value: state.clientTraceId.slice(0, 12) }
+    ])
   });
-  $$(".detail-view").forEach((view) => {
-    const active = view.id === `detail-${name}`;
-    view.hidden = !active;
-    view.classList.toggle("active", active);
+}
+
+/* ---------- Work item detail ---------- */
+function openWorkItem(id) {
+  const item = (state.workItems || []).find(w => clean(w.id) === clean(id));
+  if (!item) { toast("Work item not found.", "warning"); return; }
+  openDialog({
+    title: clean(item.title),
+    eyebrow: "Work item",
+    body: frag([
+      factsGrid([
+        { label: "Domain",  value: item.domain },
+        { label: "Owner",   value: item.owner },
+        { label: "Status",  value: item.status },
+        { label: "Updated", value: formatUpdated(item.updatedAt) }
+      ])
+    ])
   });
 }
 
-function openInspector(section = "project") {
-  detail(section);
-  if (!dom.inspector.open) dom.inspector.showModal();
-}
-
-function exportSnapshot() {
-  const data = {
-    generatedAt: new Date().toISOString(),
-    workspace: state.workspace,
-    api: { base: CONFIG.api, connected: state.online },
-    run: state.run,
-    attachments: state.attachments.map((attachment) => ({ name: attachment.file.name, type: attachment.file.type, size: attachment.file.size, status: attachment.status, id: attachment.id || null })),
-    activity: state.events,
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `${CONFIG.exportName}.json`;
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("A snapshot of this displayed session was downloaded.");
-}
-
+/* ---------- Bindings ---------- */
 function bind() {
-  dom.intentForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (state.submitting) return;
-    const intent = dom.intentInput.value.trim();
-    if (!intent) {
-      toast("Describe the outcome first.", "warning");
-      dom.intentInput.focus();
-      return;
+  const s = controllers.page.signal;
+
+  dom.dialogClose?.addEventListener("click", closeDialog, { signal: s });
+  dom.dialog?.addEventListener("click", (e) => { if (e.target === dom.dialog) closeDialog(); }, { signal: s });
+
+  dom.inspectorOpen?.addEventListener("click", showContext, { signal: s });
+
+  dom.newWork?.addEventListener("click", () => {
+    navigate("overview");
+    requestAnimationFrame(() => {
+      dom.intentInput?.focus();
+      dom.intentInput?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "center" });
+    });
+  }, { signal: s });
+
+  dom.viewActivity?.addEventListener("click", () => navigate("audit"), { signal: s });
+
+  dom.intentForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submit(dom.intentInput.value);
+  }, { signal: s });
+
+  dom.fileInput?.addEventListener("change", async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    for (const f of files) {
+      try { await upload(f); }
+      catch (err) { toast(`${f.name}: ${err.message}`, "error"); }
     }
-    dom.intentInput.value = "";
-    await submit(intent);
-  });
-  dom.intentInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      dom.intentForm.requestSubmit();
-    }
-  });
-  dom.attachBtn.addEventListener("click", () => dom.fileInput.click());
-  dom.fileInput.addEventListener("change", async (event) => {
-    for (const file of [...event.target.files]) {
-      try { await upload(file); } catch (error) { toast(`${file.name}: ${error.message}`, "error"); }
-    }
-    event.target.value = "";
-  });
-  dom.openInspectorBtn.addEventListener("click", () => openInspector());
-  dom.viewDetailsBtn.addEventListener("click", () => openInspector(state.run ? "activity" : "project"));
-  dom.closeInspectorBtn.addEventListener("click", () => dom.inspector.close());
-  $$(".inspector-tab").forEach((button) => button.addEventListener("click", () => detail(button.dataset.detail)));
-  dom.reviewApprovalBtn.addEventListener("click", openApproval);
-  dom.exportBtn.addEventListener("click", exportSnapshot);
-  dom.copyOutputBtn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(dom.outputText.textContent || "");
-      toast("The output was copied to your clipboard.");
-    } catch {
-      toast("The browser could not copy the output.", "warning");
-    }
-  });
+  }, { signal: s });
+
+  dom.workqueueBody?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const { action, id } = btn.dataset;
+    if (action === "open" && id) openWorkItem(id);
+  }, { signal: s });
+
+  for (const link of dom.navLinks || []) {
+    link.addEventListener("click", (e) => {
+      const view = link.dataset.view;
+      if (!CONFIG.routes.includes(view)) { e.preventDefault(); return; }
+      if (parseRoute() === view) { e.preventDefault(); handleRoute(); }
+    }, { signal: s });
+  }
+
+  window.addEventListener("hashchange", handleRoute, { signal: s });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+/* ---------- Cache DOM ---------- */
+function cacheDom() {
   Object.assign(dom, {
-    projectLabel: $("#projectLabel"), ownershipLabel: $("#ownershipLabel"), connectionDot: $("#connectionDot"), connectionLabel: $("#connectionLabel"), openInspectorBtn: $("#openInspectorBtn"),
-    intentForm: $("#intentForm"), intentInput: $("#intentInput"), attachBtn: $("#attachBtn"), fileInput: $("#fileInput"), attachmentShelf: $("#attachmentShelf"), submitBtn: $("#submitBtn"), submitLabel: $("#submitLabel"), composerHint: $("#composerHint"),
-    resultSurface: $("#resultSurface"), runState: $("#runState"), emptyResult: $("#emptyResult"), runResult: $("#runResult"), resultType: $("#resultType"), runTime: $("#runTime"), runTitle: $("#runTitle"), runSummary: $("#runSummary"), primaryOutput: $("#primaryOutput"), outputText: $("#outputText"), copyOutputBtn: $("#copyOutputBtn"), approvalCard: $("#approvalCard"), approvalTitle: $("#approvalTitle"), approvalDescription: $("#approvalDescription"), reviewApprovalBtn: $("#reviewApprovalBtn"), resultEvidence: $("#resultEvidence"), viewDetailsBtn: $("#viewDetailsBtn"),
-    inspector: $("#inspector"), closeInspectorBtn: $("#closeInspectorBtn"), factProject: $("#factProject"), factOwnership: $("#factOwnership"), factConnection: $("#factConnection"), planList: $("#planList"), eventList: $("#eventList"), fileList: $("#fileList"), exportBtn: $("#exportBtn"), approvalModal: $("#approvalModal"), approvalFacts: $("#approvalFacts"), toastRegion: $("#toastRegion"), railStatus: $("#railStatus"), railTrace: $("#railTrace"),
+    connectionDot:   $("#js-connection-dot"),
+    connectionLabel: $("#js-connection-label"),
+    viewTitle:       $("#js-view-title"),
+    viewSubtitle:    $("#js-view-subtitle"),
+    inspectorOpen:   $("#js-inspector-open"),
+    newWork:         $("#js-new-work"),
+    viewRoot:        $("#js-view-root"),
+    intentForm:      $("#js-intent-form"),
+    intentInput:     $("#js-intent-input"),
+    attachmentShelf: $("#js-attachment-shelf"),
+    fileInput:       $("#js-file-input"),
+    submitBtn:       $("#js-submit-btn"),
+    submitLabel:     $("#js-submit-label"),
+    viewActivity:    $("#js-view-activity"),
+    workqueueBody:   $("#js-workqueue-body"),
+    dialog:          $("#js-inspector"),
+    dialogTitle:     $("#js-dialog-title"),
+    dialogEyebrow:   $("#js-dialog-eyebrow"),
+    dialogBody:      $("#js-dialog-body"),
+    dialogClose:     $("#js-dialog-close"),
+    toasts:          $("#js-toasts")
   });
-  renderWorkspace();
-  renderFiles();
-  renderEvents();
-  renderPath("running");
+  dom.navLinks = $$(".nav__link[data-view]");
+}
+
+/* ---------- Boot ---------- */
+async function boot() {
+  cacheDom();
   bind();
-  await health();
-});
+  startHealthMonitor();
+  await handleRoute();
+  await loadMetrics();
+  await loadWorkQueue();
+  log("Session ready", state.clientTraceId.slice(0, 8));
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot, { once: true });
+} else {
+  boot();
+}

@@ -1,102 +1,225 @@
 <!doctype html>
-<!-- GHADI AI — Quiet Command Surface: one goal, visible server-confirmed state, and no implied external execution. -->
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="GHADI AI is a controlled workspace for reviewable operational outcomes." />
-    <meta name="theme-color" content="#0d1816" />
-    <link rel="icon" type="image/png" href="image/g_elite_g-logo_final.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/assets/dashboard.css" />
-    <title>GHADI AI</title>
-  </head>
-  <body>
-    <a class="skip-link" href="#intentInput">Skip to work request</a>
-    <div class="app-shell">
- <header class="app-header">
-  <a class="brand" href="/" aria-label="GHADI AI home">
-    <img src="/image/g_elite_g-logo_final.png" alt="G-ELITE-G symbol" width="60" style="height: auto" />
-    <span class="brand-copy"><strong>GHADI AI</strong></span>
-  </a>
-<div class="header-actions">
-  <div class="connection" aria-live="polite" title="GHADI API connection status">
-    <i id="connectionDot" class="connection-dot checking"></i>
-    <span id="connectionLabel">Checking</span>
-  </div>
-  <span id="ownershipLabel" hidden>Local session</span>
-  <button id="openInspectorBtn" class="quiet-button" type="button" aria-haspopup="dialog" aria-controls="inspector">
-    <span id="projectLabel">Project</span>
-  </button>
-</div>
-</header>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="GHADI Commercial Operating System — controlled AI operations dashboard">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" href="/image/g_elite_g-logo_final.png">
+  <link rel="preload" as="style" href="/assets/dashboard.css">
+  <link rel="stylesheet" href="/assets/dashboard.css">
+  <title>GHADI AI — Commercial Operating System</title>
+</head>
+<body>
 
-      <main class="main-stage">
-        <aside class="operations-rail" aria-label="Workspace status">
-          <div class="rail-top"><p class="section-kicker">WORKFLOW</p><strong>New session</strong><span id="railStatus">Not started</span></div>
-          <ol class="execution-path">
-            <li class="path-active"><i></i><div><span>Intent</span><small>Clear outcome</small></div></li>
-            <li><i></i><div><span>Review</span><small>Inspectable result</small></div></li>
-            <li><i></i><div><span>Effect</span><small>Server-owned decision</small></div></li>
-          </ol>
-          <div class="rail-trace"><span>TRACE</span><p id="railTrace">No trace recorded in this session.</p></div>
-          <div class="rail-rule"><span>DECISION BOUNDARY</span><p>This interface does not publish, send or pay.</p></div>
-        </aside>
+  <noscript>
+    <div class="noscript-banner" role="alert">
+      This dashboard requires JavaScript to operate. Please enable it or use a supported browser.
+    </div>
+  </noscript>
 
-        <div class="primary-flow">
-          <section class="intent-stage" aria-labelledby="intentTitle">
-            <h1 id="intentTitle">Outcome to review</h1>
-            <p class="stage-intro">Describe the result you need. GHADI AI shows an output or a decision state only when the server confirms it.</p>
-            <form id="intentForm" class="intent-composer" novalidate>
-              <label class="sr-only" for="intentInput">Describe the outcome you need</label>
-              <textarea id="intentInput" rows="4" maxlength="6000" placeholder="Example: Draft a concise product page for a technical service, with a first reviewable version and precise copy." autocomplete="off"></textarea>
-              <div id="attachmentShelf" class="attachment-shelf" aria-live="polite" hidden></div>
-              <div class="composer-footer">
-                <button id="attachBtn" class="attach-button" type="button" aria-label="Attach an image or PDF"><span aria-hidden="true">+</span> Attach</button>
-                <p id="composerHint" class="composer-hint">Image or PDF, up to 25 MB. A file becomes working context only after server confirmation.</p>
-                <button id="submitBtn" class="primary-button" type="submit"><span id="submitLabel">Start work</span><span aria-hidden="true">↵</span></button>
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" aria-label="Primary">
+      <a class="brand" href="/" aria-label="GHADI AI home">
+        <img src="/image/g_elite_g-logo_final.png" alt="" width="42" height="42" decoding="async">
+        <span class="brand__text">
+          <b>GHADI AI</b>
+          <small>Commercial OS</small>
+        </span>
+      </a>
+
+      <div class="workspace" aria-label="Active workspace">
+        <span class="workspace__label">Workspace</span>
+        <strong id="js-workspace-name">GHADI Elite Global</strong>
+      </div>
+
+      <nav class="nav" aria-label="Modules">
+        <a class="nav__link is-active" href="#overview"   data-view="overview"   aria-current="page">Overview</a>
+        <a class="nav__link"           href="#work"       data-view="work">Work Queue</a>
+        <a class="nav__link"           href="#crm"        data-view="crm">CRM</a>
+        <a class="nav__link"           href="#marketing"  data-view="marketing">Marketing</a>
+        <a class="nav__link"           href="#events"     data-view="events">Events</a>
+        <a class="nav__link"           href="#trade"      data-view="trade">Trade</a>
+        <a class="nav__link"           href="#compliance" data-view="compliance">Compliance</a>
+        <a class="nav__link"           href="#audit"      data-view="audit">Audit</a>
+      </nav>
+
+      <div class="connection" role="status" aria-live="polite">
+        <span id="js-connection-dot" class="connection__dot is-checking" aria-hidden="true"></span>
+        <span id="js-connection-label">Checking…</span>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="main">
+
+      <header class="topbar">
+        <div class="topbar__heading">
+          <h1 id="js-view-title">Overview</h1>
+          <p  id="js-view-subtitle" class="muted"></p>
+        </div>
+        <div class="topbar__actions">
+          <button class="btn" id="js-inspector-open" type="button">Context</button>
+          <button class="btn btn--primary" id="js-new-work" type="button">New Work</button>
+          <span class="user" id="js-user">Admin</span>
+        </div>
+      </header>
+
+      <div class="content" id="js-view-root" aria-live="polite" aria-busy="false">
+
+        <!-- ====== DEFAULT VIEW: OVERVIEW ====== -->
+        <section class="view" data-view-panel="overview">
+
+          <!-- Composer -->
+          <section class="card composer" aria-labelledby="js-composer-title">
+            <h2 id="js-composer-title" class="sr-only">Plan new work</h2>
+
+            <form id="js-intent-form" novalidate>
+              <label for="js-intent-input" class="sr-only">Describe the work to plan</label>
+              <textarea
+                id="js-intent-input"
+                name="intent"
+                maxlength="6000"
+                rows="4"
+                placeholder="Describe the work you need planned…"
+                required></textarea>
+
+              <div id="js-attachment-shelf" class="attachments" hidden></div>
+
+              <div class="composer__footer">
+                <label class="btn btn--ghost" for="js-file-input" title="Images or PDF · max 25 MB">
+                  + Attach
+                </label>
+                <input
+                  id="js-file-input"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  multiple
+                  class="sr-only">
+
+                <button class="btn btn--primary" id="js-submit-btn" type="submit">
+                  <span id="js-submit-label">Plan Work</span>
+                </button>
               </div>
             </form>
-            <input id="fileInput" type="file" accept="image/*,application/pdf" multiple hidden />
-            <p class="privacy-line">The browser does not carry Gemini keys or direct executor credentials. External effect requires an owned server approval.</p>
           </section>
 
-          <section id="resultSurface" class="result-surface state-idle" aria-labelledby="resultTitle" aria-live="polite">
-            <header class="result-head"><div><p class="section-kicker">RESULT</p><h2 id="resultTitle">Start with a clear outcome</h2></div><span id="runState" class="state-chip">Ready</span></header>
-            <div id="emptyResult" class="empty-result"><div class="path-mark" aria-hidden="true"><i></i><i></i><i></i></div><p>A preview, file, decision or a server-confirmed failure will appear here.</p></div>
-            <article id="runResult" class="run-result" hidden>
-              <div class="run-meta"><span id="resultType">Run</span><time id="runTime"></time></div>
-              <h2 id="runTitle">Understanding the outcome</h2><p id="runSummary"></p>
-              <div id="primaryOutput" class="artifact-card" hidden><header><span>REVIEWABLE OUTPUT</span><button id="copyOutputBtn" class="text-button" type="button">Copy</button></header><pre id="outputText"><code></code></pre></div>
-              <div id="approvalCard" class="approval-card" hidden><div><p>DECISION REQUIRED</p><h3 id="approvalTitle">Proposed external effect</h3><span id="approvalDescription"></span></div><button id="reviewApprovalBtn" class="quiet-button danger-edge" type="button">Review decision</button></div>
-            </article>
-            <footer class="result-footer"><span id="resultEvidence">No active run</span><button id="viewDetailsBtn" class="text-button" type="button">View activity</button></footer>
+          <!-- Metrics -->
+          <section class="metrics" aria-label="Key metrics">
+            <div class="metric">
+              <span class="metric__label">Open Opportunities</span>
+              <strong class="metric__value" data-metric="opportunities">—</strong>
+            </div>
+            <div class="metric">
+              <span class="metric__label">Active Campaigns</span>
+              <strong class="metric__value" data-metric="campaigns">—</strong>
+            </div>
+            <div class="metric">
+              <span class="metric__label">Upcoming Events</span>
+              <strong class="metric__value" data-metric="events">—</strong>
+            </div>
+            <div class="metric">
+              <span class="metric__label">Pending Decisions</span>
+              <strong class="metric__value" data-metric="pending">—</strong>
+            </div>
           </section>
-        </div>
-      </main>
-    </div>
 
-    <dialog id="inspector" class="inspector" aria-labelledby="inspectorTitle">
-      <div class="inspector-card">
-        <header class="inspector-header"><div><p class="section-kicker">REVIEWABLE CONTEXT</p><h2 id="inspectorTitle">Workspace</h2></div><button id="closeInspectorBtn" class="close-button" type="button" aria-label="Close">×</button></header>
-        <nav class="inspector-nav" aria-label="Workspace details">
-          <button class="inspector-tab active" type="button" data-detail="project" aria-selected="true">Project</button>
-          <button class="inspector-tab" type="button" data-detail="work" aria-selected="false">Work</button>
-          <button class="inspector-tab" type="button" data-detail="activity" aria-selected="false">Activity</button>
-          <button class="inspector-tab" type="button" data-detail="files" aria-selected="false">Files</button>
-        </nav>
-        <section id="detail-project" class="detail-view active"><dl class="fact-list"><div><dt>Workspace</dt><dd id="factProject">Untitled workspace</dd></div><div><dt>Ownership</dt><dd id="factOwnership">Local session — identity is not enabled</dd></div><div><dt>Connection</dt><dd id="factConnection">Checking</dd></div><div><dt>Route</dt><dd class="mono">/api</dd></div><div><dt>Model</dt><dd class="mono">server-managed</dd></div></dl><p class="detail-note">A session becomes an owned workspace only when the server returns a project identity linked to an authenticated user.</p></section>
-        <section id="detail-work" class="detail-view" hidden><div id="planList" class="plan-list"><div class="empty-list"><strong>No plan yet</strong><p>Server-confirmed steps appear after a real run begins.</p></div></div></section>
-        <section id="detail-activity" class="detail-view" hidden><div id="eventList" class="event-list"><div class="empty-list"><strong>No activity yet</strong><p>GHADI AI records events the client proves or the server returns.</p></div></div></section>
-        <section id="detail-files" class="detail-view" hidden><div id="fileList" class="file-list"><div class="empty-list"><strong>No files</strong><p>Attach an image or PDF to see its acceptance state here.</p></div></div></section>
-        <footer class="inspector-footer"><button id="exportBtn" class="quiet-button" type="button">Export snapshot</button><span>The snapshot contains only what this session displayed.</span></footer>
+          <!-- Modules -->
+          <section class="section" aria-labelledby="js-modules-title">
+            <header class="section__head">
+              <h2 id="js-modules-title">Modules</h2>
+            </header>
+            <div class="modules">
+              <a class="module" href="#marketing"  data-view="marketing"  title="Campaigns, content, segmentation, performance">
+                <span class="module__icon" aria-hidden="true">◈</span>
+                <span class="module__name">Marketing</span>
+              </a>
+              <a class="module" href="#events"     data-view="events"     title="Exhibitions, conferences, sponsors, delivery">
+                <span class="module__icon" aria-hidden="true">◇</span>
+                <span class="module__name">Events</span>
+              </a>
+              <a class="module" href="#trade"      data-view="trade"      title="Products, suppliers, buyers, RFQs, shipments">
+                <span class="module__icon" aria-hidden="true">▣</span>
+                <span class="module__name">Trade</span>
+              </a>
+              <a class="module" href="#crm"        data-view="crm"        title="Companies, contacts, commercial matching">
+                <span class="module__icon" aria-hidden="true">◎</span>
+                <span class="module__name">CRM</span>
+              </a>
+              <a class="module" href="#compliance" data-view="compliance" title="Licences, documents, risks, gates">
+                <span class="module__icon" aria-hidden="true">✓</span>
+                <span class="module__name">Compliance</span>
+              </a>
+              <a class="module" href="#audit"      data-view="audit"      title="Prompts, sources, tools, approvals, outcomes">
+                <span class="module__icon" aria-hidden="true">▤</span>
+                <span class="module__name">Intelligence</span>
+              </a>
+              <a class="module" href="#cairo"      data-view="cairo"      title="Permits, vendors, phases, readiness gates">
+                <span class="module__icon" aria-hidden="true">⌘</span>
+                <span class="module__name">Cairo Project</span>
+              </a>
+              <a class="module" href="#audit"      data-view="audit"      title="Full audit trail">
+                <span class="module__icon" aria-hidden="true">⌁</span>
+                <span class="module__name">Governance</span>
+              </a>
+            </div>
+          </section>
+
+          <!-- Work queue -->
+          <section class="section" aria-labelledby="js-workqueue-title">
+            <header class="section__head">
+              <h2 id="js-workqueue-title">Work Queue</h2>
+              <button class="btn btn--ghost" id="js-view-activity" type="button">Activity</button>
+            </header>
+
+            <div class="card table-wrap">
+              <table class="table">
+                <caption class="sr-only">Active work items with owner, status and control action</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Work Item</th>
+                    <th scope="col">Domain</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Updated</th>
+                    <th scope="col" class="table__action-col">Control</th>
+                  </tr>
+                </thead>
+                <tbody id="js-workqueue-body">
+                  <tr>
+                    <td colspan="6" class="muted">Loading…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </section>
+
       </div>
-    </dialog>
+    </main>
+  </div>
 
-    <dialog id="approvalModal" class="approval-modal" aria-labelledby="approvalModalTitle"><form method="dialog" class="approval-modal-card"><button class="close-button modal-close" value="close" type="submit" aria-label="Close">×</button><p class="section-kicker danger-copy">PROTECTED DECISION</p><h2 id="approvalModalTitle">Review the effect before approval</h2><div id="approvalFacts" class="approval-facts"></div><p class="detail-note">This page does not pay, publish or send. A real execution control appears only after the server provides a valid, owned contract.</p><button id="confirmApprovalBtn" class="primary-button" type="button" disabled>Server approval is not enabled</button></form></dialog>
-    <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-    <script src="/assets/dashboard.js" defer></script>
-  </body>
+  <!-- ============ DIALOG ============ -->
+  <dialog id="js-inspector" class="dialog" aria-labelledby="js-dialog-title" aria-modal="true">
+    <div class="dialog__card">
+      <header class="dialog__head">
+        <div>
+          <span class="dialog__eyebrow" id="js-dialog-eyebrow"></span>
+          <h2 id="js-dialog-title"></h2>
+        </div>
+        <button class="dialog__close" id="js-dialog-close" type="button" aria-label="Close dialog">×</button>
+      </header>
+      <div class="dialog__body" id="js-dialog-body"></div>
+    </div>
+  </dialog>
+
+  <!-- ============ TOASTS ============ -->
+  <div class="toasts" id="js-toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="/assets/dashboard.js" defer></script>
+</body>
 </html>
