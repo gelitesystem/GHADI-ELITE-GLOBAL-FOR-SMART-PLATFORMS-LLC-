@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="GHADI Commercial Operating System — controlled AI operations dashboard">
+  <meta name="description" content="GHADI Commercial Operating System — controlled AI operations dashboard.">
   <meta name="theme-color" content="#07111f">
   <meta name="color-scheme" content="dark">
   <link rel="icon" type="image/png" href="/image/g_elite_g-logo_final.png">
@@ -68,6 +68,7 @@
         </div>
       </header>
 
+      <!-- JS renders the active view into this container -->
       <div class="content" id="js-view-root" aria-live="polite" aria-busy="false">
 
         <!-- ====== DEFAULT VIEW: OVERVIEW ====== -->
@@ -107,23 +108,23 @@
             </form>
           </section>
 
-          <!-- Metrics -->
+          <!-- Metrics — driven by /api/runs and /api/approvals -->
           <section class="metrics" aria-label="Key metrics">
             <div class="metric">
-              <span class="metric__label">Open Opportunities</span>
-              <strong class="metric__value" data-metric="opportunities">—</strong>
+              <span class="metric__label">Total Runs</span>
+              <strong class="metric__value" data-metric="runs">—</strong>
             </div>
             <div class="metric">
-              <span class="metric__label">Active Campaigns</span>
-              <strong class="metric__value" data-metric="campaigns">—</strong>
+              <span class="metric__label">Running</span>
+              <strong class="metric__value" data-metric="running">—</strong>
             </div>
             <div class="metric">
-              <span class="metric__label">Upcoming Events</span>
-              <strong class="metric__value" data-metric="events">—</strong>
-            </div>
-            <div class="metric">
-              <span class="metric__label">Pending Decisions</span>
+              <span class="metric__label">Pending Approvals</span>
               <strong class="metric__value" data-metric="pending">—</strong>
+            </div>
+            <div class="metric">
+              <span class="metric__label">Completed</span>
+              <strong class="metric__value" data-metric="completed">—</strong>
             </div>
           </section>
 
@@ -168,7 +169,7 @@
             </div>
           </section>
 
-          <!-- Work queue -->
+          <!-- Work queue — driven by /api/runs -->
           <section class="section" aria-labelledby="js-workqueue-title">
             <header class="section__head">
               <h2 id="js-workqueue-title">Work Queue</h2>

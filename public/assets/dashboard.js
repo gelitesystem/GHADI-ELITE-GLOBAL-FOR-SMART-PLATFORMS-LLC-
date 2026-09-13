@@ -4,8 +4,33 @@
    GHADI AI — Commercial Operating System
    dashboard.js
    Backend: Firebase Functions (ghadiApi) via Hosting rewrites
+   ------------------------------------------------------------
+   Sections
+   01. Config
+   02. State
+   03. DOM cache & controllers
+   04. Utils
+   05. DOM builders (XSS-safe)
+   06. Toasts
+   07. API client
+   08. Event log
+   09. Connection / health monitor
+   10. Dialog
+   11. View fragments
+   12. Router
+   13. Metrics (from /api/runs + /api/approvals)
+   14. Work queue (from /api/runs)
+   15. Status badge & time format
+   16. Audit panel
+   17. Submit (POST /api/submit)
+   18. Attachments (POST /api/attachments)
+   19. Context dialog
+   20. Work item detail (GET /api/runs/:id)
+   21. Bindings
+   22. Boot
    ============================================================ */
 
+/* ---------- 01. Config ---------- */
 const CONFIG = Object.freeze({
   apiBase: "/api",
   requestTimeout: 18000,
@@ -17,9 +42,13 @@ const CONFIG = Object.freeze({
   toastTtlMs: 4400,
   maxEvents: 60,
   locale: document.documentElement.lang || "en",
-  routes: Object.freeze(["overview","work","crm","marketing","events","trade","compliance","audit"])
+  routes: Object.freeze([
+    "overview", "work", "crm", "marketing",
+    "events", "trade", "compliance", "audit"
+  ])
 });
 
+/* ---------- 02. State ---------- */
 const state = {
   clientTraceId: (crypto.randomUUID?.() ?? `trace_${Date.now()}`),
   online: false,
@@ -28,16 +57,20 @@ const state = {
   attachments: [],
   events: [],
   metrics: null,
-  workItems: null,
+  runs: null,
   activeView: "overview"
 };
 
+/* ---------- 03. DOM cache & controllers ---------- */
 const dom = {};
-const controllers = { page: new AbortController(), uploads: new Map() };
+const controllers = {
+  page: new AbortController(),
+  uploads: new Map()
+};
 
-/* ---------- Utils ---------- */
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+/* ---------- 04. Utils ---------- */
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const clean = (v, fb = "") => v == null ? fb : (String(v).trim() || fb);
 
 const numFmt  = new Intl.NumberFormat(CONFIG.locale);
@@ -50,9 +83,10 @@ const fmtDate = (d) => {
   const dt = d instanceof Date ? d : new Date(d);
   return Number.isNaN(dt.getTime()) ? "—" : dateFmt.format(dt);
 };
-const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+const reducedMotion = () =>
+  window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
 
-/* ---------- DOM builders (XSS-safe) ---------- */
+/* ---------- 05. DOM builders (XSS-safe) ---------- */
 function el(tag, props = {}, children = []) {
   const node = document.createElement(tag);
   for (const [key, value] of Object.entries(props)) {
@@ -84,7 +118,7 @@ function frag(children) {
 
 const clear = (node) => { if (node) node.replaceChildren(); };
 
-/* ---------- Toasts ---------- */
+/* ---------- 06. Toasts ---------- */
 const toastState = { list: [] };
 
 function toast(message, tone = "neutral", ttl = CONFIG.toastTtlMs) {
@@ -107,7 +141,7 @@ function toast(message, tone = "neutral", ttl = CONFIG.toastTtlMs) {
   }, ttl);
 }
 
-/* ---------- API client ---------- */
+/* ---------- 07. API client ---------- */
 class ApiError extends Error {
   constructor(message, opts = {}) {
     super(message);
@@ -125,7 +159,10 @@ async function api(path, { method = "GET", headers = {}, body, signal, timeout =
     if (signal.aborted) ctrl.abort(signal.reason);
     else signal.addEventListener("abort", onAbort, { once: true });
   }
-  const timer = setTimeout(() => ctrl.abort(new DOMException("Timeout", "TimeoutError")), timeout);
+  const timer = setTimeout(
+    () => ctrl.abort(new DOMException("Timeout", "TimeoutError")),
+    timeout
+  );
 
   try {
     const res = await fetch(`${CONFIG.apiBase}${path}`, {
@@ -138,18 +175,25 @@ async function api(path, { method = "GET", headers = {}, body, signal, timeout =
     });
 
     const type = res.headers.get("content-type") || "";
-    const payload = type.includes("json") ? await res.json().catch(() => null) : await res.text();
+    const payload = type.includes("json")
+      ? await res.json().catch(() => null)
+      : await res.text();
 
     if (!res.ok) {
       const msg = payload && typeof payload === "object"
         ? payload.error?.message || payload.message || `HTTP ${res.status}`
         : String(payload || `HTTP ${res.status}`);
-      throw new ApiError(msg, { status: res.status, code: payload?.error?.code, detail: payload });
+      throw new ApiError(msg, {
+        status: res.status,
+        code: payload?.error?.symbol || payload?.error?.code,
+        detail: payload
+      });
     }
     if (payload && typeof payload === "object" && payload.success === false) {
-      throw new ApiError(payload.error?.message || payload.message || "Request failed", {
-        code: payload.error?.code, detail: payload
-      });
+      throw new ApiError(
+        payload.error?.message || payload.message || "Request failed",
+        { code: payload.error?.symbol || payload.error?.code, detail: payload }
+      );
     }
     return payload;
   } finally {
@@ -158,19 +202,23 @@ async function api(path, { method = "GET", headers = {}, body, signal, timeout =
   }
 }
 
-/* ---------- Event log ---------- */
+/* ---------- 08. Event log ---------- */
 function log(title, detail = "") {
   state.events.unshift({ title: clean(title), detail: clean(detail), at: fmtTime() });
   if (state.events.length > CONFIG.maxEvents) state.events.length = CONFIG.maxEvents;
 }
 
-/* ---------- Connection / health ---------- */
+/* ---------- 09. Connection / health monitor ---------- */
 function setConnection(kind, label) {
   state.online = kind === "online";
   if (dom.connectionDot) dom.connectionDot.className = `connection__dot is-${kind}`;
-  if (dom.connectionLabel) dom.connectionLabel.textContent = label ?? (
-    kind === "online" ? "Connected" : kind === "offline" ? "Offline" : "Checking…"
-  );
+  if (dom.connectionLabel) {
+    dom.connectionLabel.textContent = label ?? (
+      kind === "online"  ? "Connected"  :
+      kind === "offline" ? "Offline"    :
+                           "Checking…"
+    );
+  }
 }
 
 async function health() {
@@ -179,11 +227,17 @@ async function health() {
   try {
     const p = await api("/health", { timeout: CONFIG.healthTimeout });
     const d = p?.data || p || {};
-    const ok = d.ok === true || d.status === "healthy" || d.engine === "healthy";
+    const ok =
+      d.ok === true ||
+      d.status === "healthy" ||
+      d.engine === "healthy";
     setConnection(ok ? "online" : "offline", ok ? "Connected" : "Degraded");
   } catch (err) {
-    if (err.name === "TimeoutError" || err.name === "AbortError") setConnection("offline", "Timeout");
-    else setConnection("offline", "Unavailable");
+    if (err.name === "TimeoutError" || err.name === "AbortError") {
+      setConnection("offline", "Timeout");
+    } else {
+      setConnection("offline", "Unavailable");
+    }
   }
 }
 
@@ -193,13 +247,15 @@ function startHealthMonitor() {
   const s = controllers.page.signal;
   window.addEventListener("online", health, { signal: s });
   window.addEventListener("offline", () => setConnection("offline", "Device offline"), { signal: s });
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) health(); }, { signal: s });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) health();
+  }, { signal: s });
 }
 
-/* ---------- Dialog ---------- */
+/* ---------- 10. Dialog ---------- */
 function openDialog({ title, eyebrow = "", body }) {
   if (!dom.dialog) return;
-  if (dom.dialogTitle) dom.dialogTitle.textContent = clean(title);
+  if (dom.dialogTitle)   dom.dialogTitle.textContent   = clean(title);
   if (dom.dialogEyebrow) dom.dialogEyebrow.textContent = clean(eyebrow);
   clear(dom.dialogBody);
   if (body instanceof Node) dom.dialogBody.append(body);
@@ -207,14 +263,16 @@ function openDialog({ title, eyebrow = "", body }) {
   if (!dom.dialog.open) dom.dialog.showModal();
 }
 
-function closeDialog() { if (dom.dialog?.open) dom.dialog.close(); }
+function closeDialog() {
+  if (dom.dialog?.open) dom.dialog.close();
+}
 
-/* ---------- View fragments ---------- */
+/* ---------- 11. View fragments ---------- */
 function factsGrid(items) {
   return el("div", { class: "facts" }, items.map(({ label, value }) =>
     el("div", { class: "fact" }, [
       el("span", { text: clean(label) }),
-      el("b", { text: clean(value, "—") })
+      el("b",    { text: clean(value, "—") })
     ])
   ));
 }
@@ -246,7 +304,7 @@ const VIEW_META = Object.freeze({
   audit:      { title: "Audit",      subtitle: "" }
 });
 
-/* ---------- Router ---------- */
+/* ---------- 12. Router ---------- */
 function parseRoute() {
   const h = location.hash.replace(/^#\/?/, "");
   return CONFIG.routes.includes(h) ? h : "overview";
@@ -263,7 +321,7 @@ function updateNav(view) {
     const on = link.dataset.view === view;
     link.classList.toggle("is-active", on);
     if (on) link.setAttribute("aria-current", "page");
-    else link.removeAttribute("aria-current");
+    else    link.removeAttribute("aria-current");
   }
 }
 
@@ -271,7 +329,7 @@ async function handleRoute() {
   const view = parseRoute();
   state.activeView = view;
   const meta = VIEW_META[view];
-  if (dom.viewTitle) dom.viewTitle.textContent = meta.title;
+  if (dom.viewTitle)    dom.viewTitle.textContent    = meta.title;
   if (dom.viewSubtitle) dom.viewSubtitle.textContent = meta.subtitle || "";
   document.title = `GHADI — ${meta.title}`;
   updateNav(view);
@@ -280,90 +338,119 @@ async function handleRoute() {
     panel.hidden = panel.dataset.viewPanel !== view;
   }
 
-  if (view === "work") await loadWorkQueue();
+  if (view === "work")  await loadWorkQueue();
   if (view === "audit") renderAuditPanel();
 }
 
-/* ---------- Metrics ---------- */
+/* ---------- 13. Metrics (from real endpoints) ---------- */
 async function loadMetrics() {
   const cells = $$("[data-metric]", dom.viewRoot);
   cells.forEach(c => { c.textContent = "…"; });
 
   try {
-    const p = await api("/metrics");
-    const d = p?.data || p || {};
-    const map = {
-      opportunities: d.openOpportunities ?? d.opportunities,
-      campaigns:     d.activeCampaigns  ?? d.campaigns,
-      events:        d.upcomingEvents   ?? d.events,
-      pending:       d.pendingDecisions ?? d.pending
+    const [runsRes, approvalsRes] = await Promise.all([
+      api("/runs?limit=100").catch(() => ({ data: [] })),
+      api("/approvals").catch(() => ({ data: [] }))
+    ]);
+
+    const runs = Array.isArray(runsRes?.data)      ? runsRes.data      : [];
+    const approvals = Array.isArray(approvalsRes?.data) ? approvalsRes.data : [];
+
+    const isRunning = (s) => ["running", "queued", "in_progress"].includes(String(s || "").toLowerCase());
+    const isDone    = (s) => ["completed", "done", "succeeded"].includes(String(s || "").toLowerCase());
+    const isPending = (a) => ["pending", "awaiting", "review_required"].includes(
+      String(a?.status || "").toLowerCase()
+    );
+
+    const counts = {
+      runs:      runs.length,
+      running:   runs.filter(r => isRunning(r.status)).length,
+      pending:   approvals.filter(isPending).length,
+      completed: runs.filter(r => isDone(r.status)).length
     };
-    for (const c of cells) c.textContent = fmtInt(map[c.dataset.metric]);
-    state.metrics = map;
+
+    for (const c of cells) {
+      const v = counts[c.dataset.metric];
+      c.textContent = Number.isFinite(v) ? numFmt.format(v) : "—";
+    }
+    state.metrics = counts;
   } catch (err) {
     cells.forEach(c => { c.textContent = "—"; });
     log("Metrics unavailable", err.message);
   }
 }
 
-/* ---------- Work queue ---------- */
+/* ---------- 14. Work queue (from /api/runs) ---------- */
 async function loadWorkQueue() {
   const tbody = dom.workqueueBody;
   if (!tbody) return;
   clear(tbody);
-  tbody.append(el("tr", {}, [el("td", { attrs: { colspan: "6" }, class: "muted", text: "Loading…" })]));
+  tbody.append(el("tr", {}, [
+    el("td", { attrs: { colspan: "6" }, class: "muted", text: "Loading…" })
+  ]));
 
   try {
-    const p = await api("/work-items");
-    const list = Array.isArray(p) ? p
-      : Array.isArray(p?.data)  ? p.data
-      : Array.isArray(p?.items) ? p.items : [];
+    const res = await api("/runs?limit=50");
+    const list = Array.isArray(res?.data) ? res.data : [];
 
     clear(tbody);
 
     if (!list.length) {
       tbody.append(el("tr", {}, [
         el("td", { attrs: { colspan: "6" } },
-          [emptyState({ title: "No work items", hint: "Server returned an empty list." })])
+          [emptyState({
+            title: "No runs yet",
+            hint: "Submit a request from the composer above to create your first run."
+          })])
       ]));
+      state.runs = [];
       return;
     }
 
-    for (const item of list) {
-      tbody.append(el("tr", { dataset: { id: clean(item.id) } }, [
-        el("td", { text: clean(item.title, "—") }),
-        el("td", { text: clean(item.domain, "—") }),
-        el("td", { text: clean(item.owner, "—") }),
-        el("td", {}, [statusBadge(item.status)]),
-        el("td", {}, [el("time", { text: formatUpdated(item.updatedAt) })]),
+    state.runs = list;
+
+    for (const run of list) {
+      const id = clean(run.id || run.runId);
+      tbody.append(el("tr", { dataset: { id } }, [
+        el("td", { text: clean(run.request || run.input || run.title, "—") }),
+        el("td", { text: clean(run.type    || run.domain || "Run") }),
+        el("td", { text: clean(run.actor   || run.owner  || "System") }),
+        el("td", {}, [statusBadge(run.status)]),
+        el("td", {}, [el("time", { text: formatUpdated(run.createdAt || run.updatedAt) })]),
         el("td", { class: "table__action-col" }, [
           el("button", {
             class: "btn btn--sm",
             type: "button",
-            dataset: { action: "open", id: clean(item.id) },
+            dataset: { action: "open", id },
             text: "Open"
           })
         ])
       ]));
     }
-    state.workItems = list;
   } catch (err) {
     clear(tbody);
     tbody.append(el("tr", {}, [
       el("td", { attrs: { colspan: "6" } },
-        [emptyState({ title: "Unable to load work items", hint: err.message })])
+        [emptyState({ title: "Unable to load runs", hint: err.message })])
     ]));
   }
 }
 
+/* ---------- 15. Status badge & time format ---------- */
 function statusBadge(status) {
-  const s = clean(status).toLowerCase();
+  const s = String(status || "").toLowerCase();
   const map = {
-    "review required": { cls: "is-warn",   label: "Review required" },
-    "in progress":     { cls: "is-ok",     label: "In progress" },
-    "open":            { cls: "is-ok",     label: "Open" },
-    "blocked":         { cls: "is-danger", label: "Blocked" },
-    "done":            { cls: "is-ok",     label: "Done" }
+    "completed":          { cls: "is-ok",     label: "Completed" },
+    "succeeded":          { cls: "is-ok",     label: "Succeeded" },
+    "done":               { cls: "is-ok",     label: "Done" },
+    "running":            { cls: "is-ok",     label: "Running" },
+    "in_progress":        { cls: "is-ok",     label: "In progress" },
+    "queued":             { cls: "is-warn",   label: "Queued" },
+    "pending":            { cls: "is-warn",   label: "Pending" },
+    "awaiting_approval":  { cls: "is-warn",   label: "Awaiting approval" },
+    "failed":             { cls: "is-danger", label: "Failed" },
+    "error":              { cls: "is-danger", label: "Error" },
+    "rejected":           { cls: "is-danger", label: "Rejected" }
   };
   const cfg = map[s] || { cls: "", label: clean(status, "—") };
   return el("span", { class: `badge ${cfg.cls}`.trim(), text: cfg.label });
@@ -374,13 +461,13 @@ function formatUpdated(v) {
   const d = typeof v?.toDate === "function" ? v.toDate() : new Date(v);
   if (Number.isNaN(d.getTime())) return "—";
   const diff = Date.now() - d.getTime();
-  if (diff < 60_000) return "Just now";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
+  if (diff < 60_000)      return "Just now";
+  if (diff < 3_600_000)   return `${Math.floor(diff / 60_000)}m ago`;
+  if (diff < 86_400_000)  return `${Math.floor(diff / 3_600_000)}h ago`;
   return fmtDate(d);
 }
 
-/* ---------- Audit panel ---------- */
+/* ---------- 16. Audit panel ---------- */
 function renderAuditPanel() {
   let panel = $('[data-view-panel="audit"]', dom.viewRoot);
   if (!panel) {
@@ -395,20 +482,24 @@ function renderAuditPanel() {
 
   panel.append(
     el("section", { class: "card" }, [
-      el("header", { class: "section__head" }, [el("h2", { text: "Session activity" })]),
+      el("header", { class: "section__head" }, [
+        el("h2", { text: "Session activity" })
+      ]),
       listBlock(items)
     ])
   );
 }
 
-/* ---------- Submit ---------- */
+/* ---------- 17. Submit (POST /api/submit) ---------- */
 function setSubmitting(busy) {
   state.submitting = busy;
   if (dom.submitBtn) {
     dom.submitBtn.disabled = busy;
     dom.submitBtn.setAttribute("aria-busy", String(busy));
   }
-  if (dom.submitLabel) dom.submitLabel.textContent = busy ? "Planning…" : "Plan Work";
+  if (dom.submitLabel) {
+    dom.submitLabel.textContent = busy ? "Planning…" : "Plan Work";
+  }
 }
 
 async function submit(intent) {
@@ -425,11 +516,11 @@ async function submit(intent) {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        request: text,
-        locale: CONFIG.locale,
-        projectId: state.workspace.id,
-        clientTraceId: state.clientTraceId,
-        attachmentIds: ready.map(a => a.id).filter(Boolean),
+        request:        text,
+        locale:         CONFIG.locale,
+        projectId:      state.workspace.id,
+        clientTraceId:  state.clientTraceId,
+        attachmentIds:  ready.map(a => a.id).filter(Boolean),
         idempotencyKey: `${state.clientTraceId}:${Date.now()}`
       })
     });
@@ -441,7 +532,7 @@ async function submit(intent) {
     log("Submit failed", err.message);
     toast(`Submit failed: ${err.message}`, "error");
     openDialog({
-      title: "Submit not confirmed",
+      title:   "Submit not confirmed",
       eyebrow: "Server",
       body: frag([
         el("p", { class: "muted", text: "The browser did not perform any external effect. Your text has been preserved." }),
@@ -463,7 +554,9 @@ function normalizeRun(payload, fallbackSummary) {
     id,
     status:   clean(d.status, "running"),
     summary:  clean(d.result || d.summary || d.message, fallbackSummary),
-    plan:     Array.isArray(d.plan) ? d.plan : Array.isArray(d.steps) ? d.steps : [],
+    plan:     Array.isArray(d.plan)  ? d.plan
+            : Array.isArray(d.steps) ? d.steps
+            : [],
     approval: d.approval || d.pendingApproval || null,
     type:     clean(d.outputType || d.artifact?.type, "Run")
   };
@@ -495,7 +588,7 @@ function renderRun(run) {
   log("Run received", run.id);
 }
 
-/* ---------- Attachments ---------- */
+/* ---------- 18. Attachments (POST /api/attachments) ---------- */
 function attachmentAllowed(file) {
   return file?.type?.startsWith("image/") || file?.type === "application/pdf";
 }
@@ -507,7 +600,10 @@ function renderAttachments() {
   dom.attachmentShelf.hidden = false;
   for (const a of state.attachments) {
     dom.attachmentShelf.append(
-      el("span", { class: a.status === "failed" ? "is-failed" : "", text: `${a.file.name} · ${a.label}` })
+      el("span", {
+        class: a.status === "failed" ? "is-failed" : "",
+        text: `${a.file.name} · ${a.label}`
+      })
     );
   }
 }
@@ -527,8 +623,8 @@ async function upload(file) {
     const res = await api("/attachments", {
       method: "POST",
       headers: {
-        "content-type": "application/octet-stream",
-        "x-file-name": encodeURIComponent(file.name),
+        "content-type":   "application/octet-stream",
+        "x-file-name":    encodeURIComponent(file.name),
         "x-client-trace": state.clientTraceId
       },
       body: file,
@@ -545,17 +641,19 @@ async function upload(file) {
   } catch (err) {
     entry.status = "failed";
     entry.label = err.name === "AbortError" ? "Cancelled" : "Failed";
-    if (err.name !== "AbortError") toast(`${file.name}: ${err.message}`, "warning");
+    if (err.name !== "AbortError") {
+      toast(`${file.name}: ${err.message}`, "warning");
+    }
   } finally {
     controllers.uploads.delete(entry);
     renderAttachments();
   }
 }
 
-/* ---------- Context dialog ---------- */
+/* ---------- 19. Context dialog ---------- */
 function showContext() {
   openDialog({
-    title: "Context",
+    title:   "Context",
     eyebrow: "Workspace",
     body: factsGrid([
       { label: "Workspace",    value: state.workspace.label },
@@ -565,30 +663,64 @@ function showContext() {
   });
 }
 
-/* ---------- Work item detail ---------- */
-function openWorkItem(id) {
-  const item = (state.workItems || []).find(w => clean(w.id) === clean(id));
-  if (!item) { toast("Work item not found.", "warning"); return; }
+/* ---------- 20. Work item detail (GET /api/runs/:id) ---------- */
+async function openWorkItem(id) {
+  if (!id) return;
   openDialog({
-    title: clean(item.title),
-    eyebrow: "Work item",
-    body: frag([
-      factsGrid([
-        { label: "Domain",  value: item.domain },
-        { label: "Owner",   value: item.owner },
-        { label: "Status",  value: item.status },
-        { label: "Updated", value: formatUpdated(item.updatedAt) }
-      ])
-    ])
+    title:   "Run details",
+    eyebrow: "Loading…",
+    body: el("p", { class: "muted", text: "Fetching from server…" })
   });
+
+  try {
+    const res = await api(`/runs/${encodeURIComponent(id)}`);
+    const run = res?.data || res || {};
+
+    const body = frag([
+      factsGrid([
+        { label: "Status",  value: run.status },
+        { label: "Type",    value: run.type || run.domain },
+        { label: "Actor",   value: run.actor || run.owner },
+        { label: "Created", value: formatUpdated(run.createdAt) },
+        { label: "Updated", value: formatUpdated(run.updatedAt) }
+      ]),
+      el("h3", { text: "Request", style: { marginTop: "1.25rem" } }),
+      el("p", { text: clean(run.request || run.input) }),
+      run.result || run.output
+        ? frag([
+            el("h3", { text: "Result", style: { marginTop: "1.25rem" } }),
+            el("pre", {
+              class: "result-pre",
+              text: typeof (run.result || run.output) === "string"
+                ? (run.result || run.output)
+                : JSON.stringify(run.result || run.output, null, 2)
+            })
+          ])
+        : null
+    ]);
+
+    openDialog({
+      title:   clean(run.title || `Run ${id}`),
+      eyebrow: "Run detail",
+      body
+    });
+  } catch (err) {
+    openDialog({
+      title:   "Unable to load",
+      eyebrow: "Error",
+      body: el("p", { class: "muted", text: err.message })
+    });
+  }
 }
 
-/* ---------- Bindings ---------- */
+/* ---------- 21. Bindings ---------- */
 function bind() {
   const s = controllers.page.signal;
 
   dom.dialogClose?.addEventListener("click", closeDialog, { signal: s });
-  dom.dialog?.addEventListener("click", (e) => { if (e.target === dom.dialog) closeDialog(); }, { signal: s });
+  dom.dialog?.addEventListener("click", (e) => {
+    if (e.target === dom.dialog) closeDialog();
+  }, { signal: s });
 
   dom.inspectorOpen?.addEventListener("click", showContext, { signal: s });
 
@@ -596,7 +728,10 @@ function bind() {
     navigate("overview");
     requestAnimationFrame(() => {
       dom.intentInput?.focus();
-      dom.intentInput?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "center" });
+      dom.intentInput?.scrollIntoView({
+        behavior: reducedMotion() ? "auto" : "smooth",
+        block: "center"
+      });
     });
   }, { signal: s });
 
@@ -634,7 +769,7 @@ function bind() {
   window.addEventListener("hashchange", handleRoute, { signal: s });
 }
 
-/* ---------- Cache DOM ---------- */
+/* ---------- 22. Boot ---------- */
 function cacheDom() {
   Object.assign(dom, {
     connectionDot:   $("#js-connection-dot"),
@@ -662,7 +797,6 @@ function cacheDom() {
   dom.navLinks = $$(".nav__link[data-view]");
 }
 
-/* ---------- Boot ---------- */
 async function boot() {
   cacheDom();
   bind();

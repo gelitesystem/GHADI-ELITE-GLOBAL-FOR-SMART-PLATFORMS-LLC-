@@ -18,9 +18,12 @@
    13. Badges
    14. Dialog
    15. Toasts
-   16. Noscript
-   17. Responsive
-   18. Motion & contrast preferences
+   16. Run output
+   17. Empty state
+   18. Noscript
+   19. Responsive
+   20. Motion & contrast preferences
+   21. Print
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -847,7 +850,48 @@ textarea { resize: vertical; }
 }
 
 /* ------------------------------------------------------------
-   16. Noscript
+   16. Run output
+   ------------------------------------------------------------ */
+.result-pre {
+  margin-top: var(--s-3);
+  padding: var(--s-3);
+  max-height: 320px;
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--c-text);
+  background: var(--c-surface-4);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ------------------------------------------------------------
+   17. Empty state
+   ------------------------------------------------------------ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-6);
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.empty-state strong {
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+.empty-state small {
+  font-size: var(--fs-sm);
+}
+
+/* ------------------------------------------------------------
+   18. Noscript
    ------------------------------------------------------------ */
 .noscript-banner {
   padding: var(--s-4) var(--s-6);
@@ -859,7 +903,7 @@ textarea { resize: vertical; }
 }
 
 /* ------------------------------------------------------------
-   17. Responsive
+   19. Responsive
    ------------------------------------------------------------ */
 @media (max-width: 1100px) {
   :root { --sidebar-w: 210px; }
@@ -918,7 +962,7 @@ textarea { resize: vertical; }
 }
 
 /* ------------------------------------------------------------
-   18. Motion & contrast preferences
+   20. Motion & contrast preferences
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -945,7 +989,9 @@ textarea { resize: vertical; }
   }
 }
 
-/* Print — strip chrome */
+/* ------------------------------------------------------------
+   21. Print
+   ------------------------------------------------------------ */
 @media print {
   .sidebar,
   .topbar,
@@ -954,14 +1000,3 @@ textarea { resize: vertical; }
   body { background: #fff; color: #000; }
   .card { box-shadow: none; border-color: #ccc; }
 }
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-6);
-  text-align: center;
-  color: var(--c-muted);
-}
-.empty-state strong { color: var(--c-text); font-weight: 600; }
-.empty-state small  { font-size: var(--fs-sm); }
