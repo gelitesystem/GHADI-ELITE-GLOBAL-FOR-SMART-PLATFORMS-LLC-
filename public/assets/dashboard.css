@@ -210,15 +210,15 @@ textarea { resize: vertical; }
 
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: var(--s-3);
   padding: var(--s-1);
 }
 
 .brand img {
-  width: 42px; height: 42px;
+  width: 120px; height: auto;
   object-fit: contain;
-  border-radius: var(--r-sm);
 }
 
 .brand__text b {
